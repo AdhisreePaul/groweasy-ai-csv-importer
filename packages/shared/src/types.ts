@@ -2,7 +2,9 @@ import type { CRM_STATUSES, DATA_SOURCES } from "./constants.js";
 
 export type CrmStatus = (typeof CRM_STATUSES)[number];
 
-export type DataSource = (typeof DATA_SOURCES)[number];
+export type AllowedDataSource = (typeof DATA_SOURCES)[number];
+
+export type DataSource = AllowedDataSource | "";
 
 export interface CrmLead {
   created_at: string;

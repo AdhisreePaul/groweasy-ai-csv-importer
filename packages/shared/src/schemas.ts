@@ -3,10 +3,17 @@ import { CRM_STATUSES, DATA_SOURCES } from "./constants.js";
 
 export const crmStatusSchema = z.enum(CRM_STATUSES);
 
-export const dataSourceSchema = z.enum(DATA_SOURCES);
+export const allowedDataSourceSchema = z.enum(DATA_SOURCES);
+
+export const dataSourceSchema = z.union([allowedDataSourceSchema, z.literal("")]);
+
+export const dateCompatibleStringSchema = z.string().refine(
+  (value) => value === "" || !Number.isNaN(new Date(value).getTime()),
+  "Must be empty or JavaScript Date-compatible"
+);
 
 export const crmLeadSchema = z.object({
-  created_at: z.string(),
+  created_at: dateCompatibleStringSchema,
   name: z.string(),
   email: z.string(),
   country_code: z.string(),

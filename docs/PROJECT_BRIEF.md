@@ -150,7 +150,7 @@ Expected normalized valid lead from the first row:
 ```json
 {
   "source_row": 2,
-  "created_at": "2026-07-07T16:30:00.000Z",
+  "created_at": "",
   "name": "Priya Sharma",
   "email": "priya@example.com",
   "country_code": "+91",

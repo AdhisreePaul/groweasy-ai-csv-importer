@@ -38,6 +38,30 @@ describe("isImportApiResponse", () => {
     ).toBe(true);
   });
 
+  it("accepts blank optional CRM extraction values", () => {
+    expect(
+      isImportApiResponse({
+        success: true,
+        summary: {
+          totalRows: 1,
+          totalImported: 1,
+          totalSkipped: 0,
+          totalBatches: 1,
+          failedBatches: 0
+        },
+        importedRecords: [
+          {
+            ...importedRecord,
+            created_at: "",
+            lead_owner: "",
+            data_source: ""
+          }
+        ],
+        skippedRecords: []
+      })
+    ).toBe(true);
+  });
+
   it("rejects missing summary fields", () => {
     expect(
       isImportApiResponse({

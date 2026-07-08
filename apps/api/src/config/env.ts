@@ -36,7 +36,10 @@ const envSchema = z.object({
   AI_PROVIDER: z.enum(["mock", "openai", "gemini", "claude"]).default("mock"),
   AI_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(25),
   AI_BATCH_RETRY_LIMIT: z.coerce.number().int().min(0).max(5).default(1),
-  AI_API_KEY: optionalSecret
+  AI_REQUEST_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(30000),
+  AI_API_KEY: optionalSecret,
+  GEMINI_API_KEY: optionalSecret,
+  GEMINI_MODEL: z.string().min(1).default("gemini-2.0-flash")
 });
 
 export type Env = z.infer<typeof envSchema>;

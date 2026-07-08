@@ -58,7 +58,7 @@ Response body:
   "importedRecords": [
     {
       "source_row": 2,
-      "created_at": "2026-07-07T16:30:00.000Z",
+      "created_at": "",
       "name": "Priya Sharma",
       "email": "priya@example.com",
       "country_code": "+91",
@@ -67,10 +67,10 @@ Response body:
       "city": "Bengaluru",
       "state": "Karnataka",
       "country": "India",
-      "lead_owner": "Unassigned",
+      "lead_owner": "",
       "crm_status": "GOOD_LEAD_FOLLOW_UP",
       "crm_note": "Additional emails: priya.work@example.com. Additional mobiles: 9988776655.",
-      "data_source": "leads_on_demand",
+      "data_source": "",
       "possession_time": "",
       "description": "Interested in property details."
     }
@@ -106,7 +106,7 @@ Every object in `importedRecords` must contain these fields:
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `source_row` | number | Yes | Original CSV row number, counting the header as row 1. |
-| `created_at` | string | Yes | ISO 8601 timestamp. |
+| `created_at` | string | Yes | JavaScript Date-compatible value when present; empty string when unknown. |
 | `name` | string | Yes | Empty string allowed if unknown. |
 | `email` | string | Yes | First valid email, or empty string if mobile exists. |
 | `country_code` | string | Yes | Include leading `+` when known, otherwise empty string. |
@@ -115,10 +115,10 @@ Every object in `importedRecords` must contain these fields:
 | `city` | string | Yes | Empty string allowed if unknown. |
 | `state` | string | Yes | Empty string allowed if unknown. |
 | `country` | string | Yes | Empty string allowed if unknown. |
-| `lead_owner` | string | Yes | Use a sensible default such as `Unassigned` if absent. |
+| `lead_owner` | string | Yes | Empty string when absent. |
 | `crm_status` | string | Yes | Must be an allowed status. |
 | `crm_note` | string | Yes | Include extra emails, extra mobiles, uncertainty, and useful context. |
-| `data_source` | string | Yes | Must be an allowed source. |
+| `data_source` | string | Yes | Must be an allowed source or empty string when unknown. |
 | `possession_time` | string | Yes | Empty string allowed if unknown. |
 | `description` | string | Yes | Human-readable lead context. |
 
@@ -146,6 +146,8 @@ Allowed `data_source` values:
   "sarjapur_plots"
 ]
 ```
+
+`data_source` may also be `""` when the CSV does not confidently match one of these values and no valid request default is provided.
 
 ## Skipped Record Object
 
@@ -190,7 +192,7 @@ Expected response excerpt:
   "importedRecords": [
     {
       "source_row": 2,
-      "created_at": "2026-07-07T16:30:00.000Z",
+      "created_at": "",
       "name": "Ravi Kumar",
       "email": "ravi@example.com",
       "country_code": "+91",

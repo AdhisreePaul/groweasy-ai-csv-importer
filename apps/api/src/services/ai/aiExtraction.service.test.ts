@@ -134,11 +134,17 @@ describe("AiExtractionService with mock provider", () => {
     ]);
     expect(result.imported_records[0]).toMatchObject({
       email: "email.only@example.com",
-      mobile_without_country_code: ""
+      mobile_without_country_code: "",
+      created_at: "",
+      lead_owner: "",
+      data_source: ""
     });
     expect(result.imported_records[1]).toMatchObject({
       email: "",
-      mobile_without_country_code: "9876543210"
+      mobile_without_country_code: "9876543210",
+      created_at: "",
+      lead_owner: "",
+      data_source: ""
     });
     expect(result.skipped_records[0]).toMatchObject({
       source_row: 5,
@@ -147,6 +153,96 @@ describe("AiExtractionService with mock provider", () => {
         Name: "No Contact",
         Notes: "No email or mobile shared"
       }
+    });
+  });
+
+  it("keeps unknown data_source blank while preserving confident and default sources", async () => {
+    const service = new AiExtractionService(new MockAiProvider(), 10);
+
+    const result = await service.extractLeads({
+      defaultDataSource: "eden_park",
+      records: [
+        {
+          source_row: 2,
+          raw_record: {
+            Name: "Confident Project",
+            Email: "project@example.com",
+            Campaign: "Meridian Tower launch",
+            "Created At": "2026-07-01",
+            "Lead Owner": "Nisha"
+          }
+        },
+        {
+          source_row: 3,
+          raw_record: {
+            Name: "Default Project",
+            Email: "default@example.com"
+          }
+        }
+      ]
+    });
+
+    expect(result.imported_records[0]).toMatchObject({
+      source_row: 2,
+      created_at: "2026-07-01T00:00:00.000Z",
+      lead_owner: "Nisha",
+      data_source: "meridian_tower"
+    });
+    expect(result.imported_records[1]).toMatchObject({
+      source_row: 3,
+      created_at: "",
+      lead_owner: "",
+      data_source: "eden_park"
+    });
+  });
+
+  it("removes AI-invented created_at, lead_owner, and data_source when raw row lacks them", async () => {
+    const service = new AiExtractionService(
+      new StaticProvider(
+        JSON.stringify({
+          importedRecords: [
+            {
+              rowIndex: 2,
+              created_at: "2026-07-07T00:00:00.000Z",
+              name: "Invented Values",
+              email: "invented@example.com",
+              country_code: "",
+              mobile_without_country_code: "",
+              company: "",
+              city: "",
+              state: "",
+              country: "",
+              lead_owner: "Unassigned",
+              crm_status: "GOOD_LEAD_FOLLOW_UP",
+              crm_note: "",
+              data_source: "leads_on_demand",
+              possession_time: "",
+              description: ""
+            }
+          ],
+          skippedRecords: []
+        })
+      ),
+      25,
+      0
+    );
+
+    const result = await service.extractLeads({
+      records: [
+        {
+          source_row: 2,
+          raw_record: {
+            Name: "Invented Values",
+            Email: "invented@example.com"
+          }
+        }
+      ]
+    });
+
+    expect(result.imported_records[0]).toMatchObject({
+      created_at: "",
+      lead_owner: "",
+      data_source: ""
     });
   });
 
@@ -398,10 +494,33 @@ describe("AiExtractionService with mock provider", () => {
       AI_PROVIDER: "mock",
       AI_BATCH_SIZE: 25,
       AI_BATCH_RETRY_LIMIT: 1,
-      AI_API_KEY: undefined
+      AI_REQUEST_TIMEOUT_MS: 30000,
+      AI_API_KEY: undefined,
+      GEMINI_API_KEY: undefined,
+      GEMINI_MODEL: "gemini-2.0-flash"
     });
 
     expect(provider.name).toBe("mock");
+  });
+
+  it("selects Gemini provider from env", () => {
+    const provider = createAiProvider({
+      NODE_ENV: "test",
+      PORT: 4000,
+      CORS_ORIGIN: "http://localhost:3000",
+      JSON_BODY_LIMIT: "1mb",
+      LOG_REQUESTS: false,
+      MAX_CSV_FILE_SIZE_BYTES: 1024,
+      AI_PROVIDER: "gemini",
+      AI_BATCH_SIZE: 25,
+      AI_BATCH_RETRY_LIMIT: 1,
+      AI_REQUEST_TIMEOUT_MS: 30000,
+      AI_API_KEY: undefined,
+      GEMINI_API_KEY: "test-key",
+      GEMINI_MODEL: "gemini-2.0-flash"
+    });
+
+    expect(provider.name).toBe("gemini");
   });
 
   it("real provider placeholder fails in a controlled way", async () => {
@@ -415,7 +534,10 @@ describe("AiExtractionService with mock provider", () => {
       AI_PROVIDER: "openai",
       AI_BATCH_SIZE: 25,
       AI_BATCH_RETRY_LIMIT: 1,
-      AI_API_KEY: undefined
+      AI_REQUEST_TIMEOUT_MS: 30000,
+      AI_API_KEY: undefined,
+      GEMINI_API_KEY: undefined,
+      GEMINI_MODEL: "gemini-2.0-flash"
     });
 
     await expect(

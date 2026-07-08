@@ -172,7 +172,7 @@ function isImportedRecord(value: unknown): value is ImportedRecord {
     typeof value.lead_owner === "string" &&
     isAllowedValue(value.crm_status, CRM_STATUSES) &&
     typeof value.crm_note === "string" &&
-    isAllowedValue(value.data_source, DATA_SOURCES) &&
+    (value.data_source === "" || isAllowedValue(value.data_source, DATA_SOURCES)) &&
     typeof value.possession_time === "string" &&
     typeof value.description === "string"
   );

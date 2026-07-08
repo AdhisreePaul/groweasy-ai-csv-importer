@@ -5,6 +5,7 @@ import type { Env } from "../config/env.js";
 import { AppError } from "../errors/AppError.js";
 import { createAiExtractionService } from "../services/ai/aiExtraction.service.js";
 import { parseCsvBuffer } from "../services/csvParser.service.js";
+import { dedupeSkippedRecords } from "../services/import/skippedRecords.js";
 
 const allowedCsvMimeTypes = new Set([
   "application/csv",
@@ -110,22 +111,6 @@ function normalizeOptionalString(value: unknown): string | undefined {
 
   const trimmed = value.trim();
   return trimmed ? trimmed : undefined;
-}
-
-function dedupeSkippedRecords<T extends { source_row: number }>(records: T[]): T[] {
-  const seen = new Set<number>();
-  const deduped: T[] = [];
-
-  for (const record of records) {
-    if (seen.has(record.source_row)) {
-      continue;
-    }
-
-    seen.add(record.source_row);
-    deduped.push(record);
-  }
-
-  return deduped.sort((left, right) => left.source_row - right.source_row);
 }
 
 function isCsvUpload(file: Express.Multer.File): boolean {

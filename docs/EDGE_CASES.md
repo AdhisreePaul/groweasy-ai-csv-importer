@@ -48,7 +48,7 @@
 | Missing company | Set `company` to empty string. |
 | Missing city, state, or country | Set unknown location fields to empty string. |
 | Ambiguous location | Put uncertainty in `crm_note`. |
-| Unknown lead owner | Use `Unassigned`. |
+| Unknown lead owner | Set `lead_owner` to empty string. |
 | Unknown possession time | Set `possession_time` to empty string. |
 | Long notes | Keep useful context but avoid excessive repetition. |
 
@@ -98,8 +98,8 @@ Expected behavior:
 
 - Use a matching source when the CSV clearly references one.
 - Use request-level default `data_source` when provided and valid.
-- Use `leads_on_demand` as a final fallback.
-- Never return a source outside the allowed list.
+- Use an empty string when no source matches confidently.
+- Never return a source outside the allowed list or empty string.
 
 ## AI Output Problems
 

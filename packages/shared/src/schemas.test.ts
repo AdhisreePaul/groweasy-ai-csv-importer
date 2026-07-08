@@ -44,6 +44,26 @@ describe("CRM schemas", () => {
     expect(dataSourceSchema.safeParse("facebook_ads").success).toBe(false);
   });
 
+  it("allows blank data_source and blank created_at for unknown values", () => {
+    expect(dataSourceSchema.safeParse("").success).toBe(true);
+    expect(
+      crmLeadSchema.safeParse({
+        ...validLead,
+        created_at: "",
+        data_source: ""
+      }).success
+    ).toBe(true);
+  });
+
+  it("rejects non-date-compatible created_at values when present", () => {
+    expect(
+      crmLeadSchema.safeParse({
+        ...validLead,
+        created_at: "not a date"
+      }).success
+    ).toBe(false);
+  });
+
   it("requires positive source row values for imported and skipped records", () => {
     expect(
       importedRecordSchema.safeParse({ ...validLead, source_row: 2 }).success

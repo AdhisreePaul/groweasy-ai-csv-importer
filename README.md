@@ -33,7 +33,7 @@ Core rule: AI processing never runs during preview. AI starts only after **Confi
 | Backend | Node.js, Express, TypeScript |
 | Shared package | TypeScript types, constants, Zod schemas, utilities |
 | CSV parsing | Custom parser with quoted comma, BOM, header, and row-index handling |
-| AI adapter | Mock provider plus real-provider placeholder |
+| AI adapter | Mock provider plus Gemini provider adapter |
 | Tests | Vitest, TypeScript checks, ESLint |
 
 ## Architecture
@@ -110,10 +110,13 @@ Copy-Item apps/web/.env.example apps/web/.env.local
 | `JSON_BODY_LIMIT` | `1mb` | Express JSON body limit. |
 | `LOG_REQUESTS` | `true` | Request logging toggle. |
 | `MAX_CSV_FILE_SIZE_BYTES` | `5242880` | Upload size limit, 5 MB by default. |
-| `AI_PROVIDER` | `mock` | Use `mock` for local review. Supported placeholders: `openai`, `gemini`, `claude`. |
+| `AI_PROVIDER` | `mock` | Use `mock` for local review or `gemini` for the real Gemini adapter. `openai` and `claude` remain placeholders. |
 | `AI_BATCH_SIZE` | `25` | Rows per AI batch. |
 | `AI_BATCH_RETRY_LIMIT` | `1` | Retries for failed AI batches. |
-| `AI_API_KEY` | empty | Backend-only secret for a real provider. Never expose through `NEXT_PUBLIC_*`. |
+| `AI_REQUEST_TIMEOUT_MS` | `30000` | Timeout for real provider requests. |
+| `AI_API_KEY` | empty | Backend-only secret. Can be used for Gemini. Never expose through `NEXT_PUBLIC_*`. |
+| `GEMINI_API_KEY` | empty | Optional Gemini-specific backend secret. Used when `AI_API_KEY` is empty. |
+| `GEMINI_MODEL` | `gemini-2.0-flash` | Gemini model used by the backend adapter. |
 
 ### Frontend: `apps/web/.env.local`
 
@@ -251,7 +254,9 @@ See [docs/API_CONTRACT.md](docs/API_CONTRACT.md) for the full contract.
 - Backend parses CSV rows and preserves source row numbers.
 - Rows are sent to the AI provider in batches.
 - `AI_PROVIDER=mock` works without any API key for local review.
-- Real provider support is isolated behind an adapter placeholder.
+- `AI_PROVIDER=gemini` calls Gemini from the backend only, using `AI_API_KEY` or `GEMINI_API_KEY`.
+- Gemini requests send the existing system and user prompt and request JSON output with `responseMimeType: application/json`.
+- `openai` and `claude` remain clean placeholders for future adapters.
 - AI output must be strict JSON.
 - Backend validates AI output against shared schemas before returning it.
 - Deterministic post-processing enforces contact rules and enum safety.
@@ -270,6 +275,8 @@ Allowed `data_source` values:
 - `eden_park`
 - `varah_swamy`
 - `sarjapur_plots`
+
+`data_source` may also be `""` when no allowed source is confidently present and no valid default source is provided.
 
 ## Validation And Skipped Records
 
@@ -300,6 +307,7 @@ Skip rules:
 - Skip rows that cannot pass final schema validation.
 - If multiple emails exist, use the first email and put the rest in `crm_note`.
 - If multiple mobiles exist, use the first mobile and put the rest in `crm_note`.
+- Leave `data_source`, `created_at`, and `lead_owner` as empty strings when they cannot be extracted from the CSV or a valid request default.
 - Preserve `source_row` so reviewers can trace skipped rows to the CSV.
 
 ## Backend Docker
@@ -350,7 +358,18 @@ CORS_ORIGIN=https://your-frontend.example.com
 AI_PROVIDER=mock
 AI_BATCH_SIZE=25
 AI_BATCH_RETRY_LIMIT=1
+AI_REQUEST_TIMEOUT_MS=30000
 AI_API_KEY=
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.0-flash
+```
+
+Gemini mode:
+
+```text
+AI_PROVIDER=gemini
+GEMINI_API_KEY=<your-gemini-api-key>
+GEMINI_MODEL=gemini-2.0-flash
 ```
 
 Deployment placeholders:
@@ -370,7 +389,7 @@ Add final screenshots before submission:
 
 ## Known Limitations
 
-- Real AI providers are represented by a clean placeholder unless API credentials and provider SDK integration are added.
+- Gemini is implemented through a backend-only REST adapter. OpenAI and Claude remain placeholders.
 - No authentication is included because it is outside assignment scope.
 - No database is used; imports are stateless and not persisted.
 - Uploaded files are processed in memory and should stay within the configured size limit.

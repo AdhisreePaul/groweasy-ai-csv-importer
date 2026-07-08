@@ -1,3 +1,5 @@
+import type { DataSource } from "@groweasy/shared";
+
 export interface AiInputRecord {
   source_row: number;
   raw_record: Record<string, unknown>;
@@ -6,7 +8,7 @@ export interface AiInputRecord {
 export interface AiBatchRequest {
   batch_id?: string | undefined;
   records: AiInputRecord[];
-  default_data_source?: string | undefined;
+  default_data_source?: DataSource | undefined;
 }
 
 export interface AiPromptMessages {

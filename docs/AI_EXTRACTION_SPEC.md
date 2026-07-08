@@ -50,7 +50,7 @@ Expected batch response shape:
   "importedRecords": [
     {
       "rowIndex": 2,
-      "created_at": "2026-07-07T16:30:00.000Z",
+      "created_at": "",
       "name": "Priya Sharma",
       "email": "priya@example.com",
       "country_code": "+91",
@@ -59,7 +59,7 @@ Expected batch response shape:
       "city": "",
       "state": "",
       "country": "India",
-      "lead_owner": "Unassigned",
+      "lead_owner": "",
       "crm_status": "GOOD_LEAD_FOLLOW_UP",
       "crm_note": "Additional emails: priya.work@example.com. Additional mobiles: 9988776655.",
       "data_source": "sarjapur_plots",
@@ -117,6 +117,8 @@ Allowed `data_source` values:
 - `varah_swamy`
 - `sarjapur_plots`
 
+`data_source` may also be an empty string when no allowed source is confidently present and no valid default source is provided.
+
 ## Extraction Rules
 
 ### Contact Rules
@@ -138,7 +140,10 @@ Allowed `data_source` values:
 - Map location fields into `city`, `state`, and `country` when possible.
 - Map project/source clues to `data_source` only if they match one of the allowed values.
 - Use request-level `default_data_source` when AI cannot infer a valid source.
-- Use `leads_on_demand` as a final fallback source if no default is provided.
+- Use an empty string when no allowed source is confidently inferred and no valid default is provided.
+- Do not default to `leads_on_demand` unless that source is explicitly present in the raw row or provided as a valid default.
+- Extract `created_at` from raw date/time columns only when it is JavaScript Date-compatible; otherwise use an empty string.
+- Use an empty string for `lead_owner` when no owner is present in the raw row.
 - Use `GOOD_LEAD_FOLLOW_UP` as the default status for contactable, not-yet-converted leads.
 - Use `SALE_DONE` only when the row clearly says the deal is sold, booked, closed, or converted.
 - Use `BAD_LEAD` only when the row clearly says the lead is invalid, fake, duplicate, spam, or not interested.
@@ -175,7 +180,7 @@ Validation must ensure:
 - Each returned lead has a matching `rowIndex` that maps to a source CSV row.
 - Every required CRM field exists.
 - `crm_status` is one of the allowed values.
-- `data_source` is one of the allowed values.
+- `data_source` is an allowed value or an empty string.
 - At least one of `email` or `mobile_without_country_code` is present.
 - Extra emails and mobiles are represented in `crm_note` when detected.
 - Invalid or unrepairable records are moved to `skippedRecords` or counted through failed batch handling.
@@ -229,7 +234,7 @@ Expected normalized AI record:
 ```json
 {
   "rowIndex": 8,
-  "created_at": "2026-07-07T16:30:00.000Z",
+  "created_at": "",
   "name": "Ananya Rao",
   "email": "ananya@example.com",
   "country_code": "+91",
@@ -238,7 +243,7 @@ Expected normalized AI record:
   "city": "Hyderabad",
   "state": "Telangana",
   "country": "India",
-  "lead_owner": "Unassigned",
+  "lead_owner": "",
   "crm_status": "DID_NOT_CONNECT",
   "crm_note": "Additional emails: ananya.office@example.com. Additional phone value not used as primary mobile: 080-12345678.",
   "data_source": "meridian_tower",

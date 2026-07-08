@@ -1,14 +1,14 @@
 import {
   appendToNote,
   cleanCellValue,
-  DATA_SOURCES,
   extractContactDetailsFromRecord,
   normalizeHeaderKey,
-  type CrmStatus,
+  normalizeDate,
   type DataSource,
   type ImportedRecord,
   type SkippedRecord
 } from "@groweasy/shared";
+import { inferDataSource, inferStatus } from "../import/inference.js";
 import type { AiBatchRequest, AiProvider } from "./aiProvider.interface.js";
 
 export class MockAiProvider implements AiProvider {
@@ -67,7 +67,7 @@ export class MockAiProvider implements AiProvider {
 function normalizeMockRecord(
   sourceRow: number,
   rawRecord: Record<string, unknown>,
-  defaultDataSource?: string
+  defaultDataSource?: DataSource
 ): ImportedRecord | null {
   const joinedText = Object.values(rawRecord).map(cleanCellValue).join(" ");
   const contactDetails = extractContactDetailsFromRecord(rawRecord);
@@ -123,10 +123,25 @@ function normalizeMockRecord(
       "requirement",
       "requirements"
     ]) || buildFallbackDescription(rawRecord);
+  const noteValue = findValue(rawRecord, [
+    "crm_note",
+    "remarks",
+    "remark",
+    "comment",
+    "comments",
+    "notes",
+    "lead notes",
+    "requirement",
+    "requirements"
+  ]);
+
+  if (noteValue) {
+    crmNote = appendToNote(crmNote, noteValue);
+  }
 
   return {
     source_row: sourceRow,
-    created_at: new Date().toISOString(),
+    created_at: findDateValue(rawRecord),
     name: findValue(rawRecord, [
       "name",
       "full name",
@@ -152,14 +167,13 @@ function normalizeMockRecord(
     state: explicitState || stateFromLocation,
     country:
       country || (contactDetails.primaryPhone?.country_code === "+91" ? "India" : ""),
-    lead_owner:
-      findValue(rawRecord, [
-        "lead owner",
-        "owner",
-        "sales person",
-        "salesperson",
-        "assigned to"
-      ]) || "Unassigned",
+    lead_owner: findValue(rawRecord, [
+      "lead owner",
+      "owner",
+      "sales person",
+      "salesperson",
+      "assigned to"
+    ]),
     crm_status: inferStatus(joinedText),
     crm_note: crmNote,
     data_source: inferDataSource(joinedText, defaultDataSource),
@@ -237,60 +251,20 @@ function parseLocation(value: string): [string, string] {
   return [cleaned, ""];
 }
 
-function inferStatus(text: string): CrmStatus {
-  const lowerText = text.toLowerCase();
+function findDateValue(record: Record<string, unknown>): string {
+  const rawDate = findValue(record, [
+    "created_at",
+    "created",
+    "created on",
+    "created date",
+    "date created",
+    "date",
+    "timestamp",
+    "submitted at",
+    "submitted on"
+  ]);
 
-  if (/\b(sold|booked|closed|converted|sale done)\b/.test(lowerText)) {
-    return "SALE_DONE";
-  }
-
-  if (
-    /\b(did not connect|could not connect|unreachable|not picking|no answer)\b/.test(
-      lowerText
-    )
-  ) {
-    return "DID_NOT_CONNECT";
-  }
-
-  if (/\b(fake|spam|duplicate|invalid|not interested|bad lead)\b/.test(lowerText)) {
-    return "BAD_LEAD";
-  }
-
-  return "GOOD_LEAD_FOLLOW_UP";
-}
-
-function inferDataSource(text: string, defaultDataSource?: string): DataSource {
-  const lowerText = text.toLowerCase();
-
-  if (lowerText.includes("meridian tower")) {
-    return "meridian_tower";
-  }
-
-  if (lowerText.includes("eden park")) {
-    return "eden_park";
-  }
-
-  if (lowerText.includes("varah swamy") || lowerText.includes("varahswamy")) {
-    return "varah_swamy";
-  }
-
-  if (lowerText.includes("sarjapur plot")) {
-    return "sarjapur_plots";
-  }
-
-  if (lowerText.includes("leads on demand")) {
-    return "leads_on_demand";
-  }
-
-  if (isAllowedDataSource(defaultDataSource)) {
-    return defaultDataSource;
-  }
-
-  return "leads_on_demand";
-}
-
-function isAllowedDataSource(value: string | undefined): value is DataSource {
-  return DATA_SOURCES.includes(value as DataSource);
+  return normalizeDate(rawDate);
 }
 
 function buildFallbackDescription(record: Record<string, unknown>): string {

@@ -75,7 +75,7 @@ No application code should be written in this milestone.
 - Enforce first email and first mobile rules.
 - Move extra emails and mobiles into `crm_note`.
 - Skip records with neither email nor mobile.
-- Normalize `crm_status` and `data_source` to allowed values.
+- Normalize `crm_status` to allowed values and `data_source` to an allowed value or empty string.
 - Fill safe missing text fields with empty strings.
 - Keep source row traceability.
 

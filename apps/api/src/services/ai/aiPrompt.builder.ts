@@ -10,6 +10,7 @@ export const AI_SYSTEM_PROMPT = [
   "Do not invent facts.",
   "Use only the allowed enum values supplied by the user prompt.",
   "Leave unknown CRM fields as empty strings.",
+  "Leave data_source as an empty string when no source matches confidently.",
   "Skip records that have neither email nor mobile number.",
   "Preserve rowIndex exactly for every imported or skipped record."
 ].join(" ");
@@ -45,7 +46,7 @@ export function buildAiExtractionPrompt(
           crm_status: "GOOD_LEAD_FOLLOW_UP | DID_NOT_CONNECT | BAD_LEAD | SALE_DONE",
           crm_note: "string",
           data_source:
-            "leads_on_demand | meridian_tower | eden_park | varah_swamy | sarjapur_plots",
+            "leads_on_demand | meridian_tower | eden_park | varah_swamy | sarjapur_plots | empty string",
           possession_time: "string",
           description: "string"
         }
@@ -73,8 +74,11 @@ export function buildAiExtractionPrompt(
       "- Leave unknown values as empty strings.",
       "- Do not invent unsupported crm_status or data_source values.",
       "- crm_status must be one of the allowedCrmStatusValues.",
-      "- data_source must be one of the allowedDataSourceValues.",
-      "- If data_source cannot be inferred, use defaultDataSource when valid; otherwise use leads_on_demand.",
+      "- data_source must be one of the allowedDataSourceValues or an empty string.",
+      "- If data_source cannot be inferred confidently, use defaultDataSource only when it is provided and valid; otherwise use an empty string.",
+      "- Do not default data_source to leads_on_demand unless it is explicitly present in the raw record or provided as defaultDataSource.",
+      "- If created_at is absent or cannot be parsed into a JavaScript Date-compatible value, use an empty string.",
+      "- If lead_owner is absent, use an empty string.",
       "- Skip rows with neither email nor mobile number.",
       "- For multiple emails, use the first valid email as email and place the remaining emails in crm_note.",
       "- For multiple mobile numbers, use the first valid mobile as mobile_without_country_code and place remaining mobiles in crm_note.",
@@ -125,7 +129,7 @@ export const FEW_SHOT_EXAMPLES = [
           city: "Bengaluru",
           state: "",
           country: "India",
-          lead_owner: "Unassigned",
+          lead_owner: "",
           crm_status: "GOOD_LEAD_FOLLOW_UP",
           crm_note: "",
           data_source: "eden_park",
@@ -202,7 +206,7 @@ export const FEW_SHOT_EXAMPLES = [
           city: "Hyderabad",
           state: "Telangana",
           country: "India",
-          lead_owner: "Unassigned",
+          lead_owner: "",
           crm_status: "DID_NOT_CONNECT",
           crm_note:
             "Additional emails: ananya.office@example.com. Additional phone value not used as primary mobile: 080-12345678.",

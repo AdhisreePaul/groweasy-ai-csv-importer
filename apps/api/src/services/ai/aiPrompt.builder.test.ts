@@ -45,6 +45,16 @@ describe("buildAiExtractionPrompt", () => {
     expect(prompt.user).toContain("For multiple mobile numbers");
     expect(prompt.user).toContain("Do not wrap the JSON in Markdown fences");
     expect(prompt.user).toContain("Leave unknown values as empty strings");
+    expect(prompt.user).toContain(
+      "If data_source cannot be inferred confidently"
+    );
+    expect(prompt.user).toContain(
+      "otherwise use an empty string"
+    );
+    expect(prompt.user).toContain("If lead_owner is absent, use an empty string");
+    expect(prompt.user).not.toContain(
+      "otherwise use leads_on_demand"
+    );
   });
 
   it("includes required few-shot examples", () => {
