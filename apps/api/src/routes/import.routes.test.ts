@@ -128,6 +128,70 @@ describe("POST /api/import/csv", () => {
     });
   });
 
+  it("imports rows with email-only or mobile-only contact variations", async () => {
+    const formData = new FormData();
+    formData.append(
+      "file",
+      new Blob(
+        [[
+          "Lead Name,Email Address,Country Code,Mobile Number,Notes",
+          "Email Only,email.only@example.com,,,Interested",
+          "Mobile Only,,91,9876543210,Asked for callback",
+          "No Contact,,,,No contact shared"
+        ].join("\n")],
+        {
+          type: "text/csv"
+        }
+      ),
+      "contact-variations.csv"
+    );
+
+    const response = await fetch(`${baseUrl}/api/import/csv`, {
+      method: "POST",
+      body: formData
+    });
+    const body = (await response.json()) as {
+      summary: { totalRows: number; totalImported: number; totalSkipped: number };
+      importedRecords: Array<{
+        source_row: number;
+        email: string;
+        country_code: string;
+        mobile_without_country_code: string;
+      }>;
+      skippedRecords: Array<{
+        source_row: number;
+        reason: string;
+        raw_record?: Record<string, unknown>;
+      }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.summary).toMatchObject({
+      totalRows: 3,
+      totalImported: 2,
+      totalSkipped: 1
+    });
+    expect(body.importedRecords[0]).toMatchObject({
+      source_row: 2,
+      email: "email.only@example.com",
+      mobile_without_country_code: ""
+    });
+    expect(body.importedRecords[1]).toMatchObject({
+      source_row: 3,
+      email: "",
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
+    });
+    expect(body.skippedRecords[0]).toMatchObject({
+      source_row: 4,
+      reason: "Missing both email and mobile number",
+      raw_record: {
+        "Lead Name": "No Contact",
+        Notes: "No contact shared"
+      }
+    });
+  });
+
   it("returns a clear error when the file is missing", async () => {
     const response = await fetch(`${baseUrl}/api/import/csv`, {
       method: "POST",

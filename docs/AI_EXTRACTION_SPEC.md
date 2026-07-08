@@ -43,13 +43,13 @@ Example batch payload shape:
 
 The AI must return JSON only. No Markdown, explanations, comments, or prose.
 
-Expected shape:
+Expected batch response shape:
 
 ```json
 {
-  "records": [
+  "importedRecords": [
     {
-      "source_row": 2,
+      "rowIndex": 2,
       "created_at": "2026-07-07T16:30:00.000Z",
       "name": "Priya Sharma",
       "email": "priya@example.com",
@@ -67,16 +67,16 @@ Expected shape:
       "description": "Interested in site visit next week."
     }
   ],
-  "skipped_records": [
+  "skippedRecords": [
     {
-      "source_row": 4,
+      "rowIndex": 4,
       "reason": "Missing both email and mobile number"
     }
   ]
 }
 ```
 
-The API may rename the AI `records` array to `imported_records` in the final HTTP response. The AI-facing schema stays compact so each batch is easier to validate.
+The backend converts AI `rowIndex` values into final API `source_row` values. The HTTP response uses `importedRecords` and `skippedRecords`.
 
 ## Required CRM Fields
 
@@ -172,13 +172,13 @@ The backend must validate AI output before returning it.
 Validation must ensure:
 
 - Output is parseable JSON.
-- Each returned lead has a matching `source_row`.
+- Each returned lead has a matching `rowIndex` that maps to a source CSV row.
 - Every required CRM field exists.
 - `crm_status` is one of the allowed values.
 - `data_source` is one of the allowed values.
 - At least one of `email` or `mobile_without_country_code` is present.
 - Extra emails and mobiles are represented in `crm_note` when detected.
-- Invalid or unrepairable records are moved to `skipped_records` or `errors`.
+- Invalid or unrepairable records are moved to `skippedRecords` or counted through failed batch handling.
 
 ## Batching Guidance
 
@@ -186,7 +186,7 @@ Validation must ensure:
 - Preserve row order inside each batch.
 - Choose a conservative batch size that avoids provider token limits.
 - Retry transient provider failures when safe.
-- If a batch fails after retries, report affected rows through `errors`.
+- If a batch fails after retries, mark affected rows in `skippedRecords` and increment `failedBatches` in the final summary.
 
 ## Prompt Requirements
 
@@ -211,7 +211,7 @@ Input record sent to AI:
 
 ```json
 {
-  "source_row": 8,
+  "rowIndex": 8,
   "raw_record": {
     "Customer": "Ananya Rao",
     "WhatsApp/Mobile": "080-12345678, +91 90000 11122",
@@ -228,7 +228,7 @@ Expected normalized AI record:
 
 ```json
 {
-  "source_row": 8,
+  "rowIndex": 8,
   "created_at": "2026-07-07T16:30:00.000Z",
   "name": "Ananya Rao",
   "email": "ananya@example.com",

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "allowJs": true,
     "incremental": true,
+    "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
     "jsx": "preserve",
     "module": "ESNext",
     "moduleResolution": "Bundler",

@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   appendToNote,
   cleanCellValue,
+  extractContactDetailsFromRecord,
   extractEmails,
   extractPhoneCandidates,
   hasContactInfo,
   normalizeDate,
+  normalizeHeaderKey,
+  normalizePhoneWithCountryCode,
   normalizeIndianPhone
 } from "./contactUtils";
 
@@ -83,6 +86,58 @@ describe("normalizeIndianPhone", () => {
       country_code: "",
       mobile_without_country_code: "",
       raw: ""
+    });
+  });
+});
+
+describe("header-aware contact extraction", () => {
+  it("normalizes common header variations", () => {
+    expect(normalizeHeaderKey("\uFEFF Email Address ")).toBe("email_address");
+    expect(normalizeHeaderKey("Country Code")).toBe("country_code");
+    expect(normalizeHeaderKey("Phone / WhatsApp")).toBe("phone_whatsapp");
+  });
+
+  it("extracts email and mobile from case and spacing variants", () => {
+    const details = extractContactDetailsFromRecord({
+      " Email Address ": "first@example.com; second@example.com",
+      "Country Code": "91",
+      "Mobile Number": "98765 43210"
+    });
+
+    expect(details.primaryEmail).toBe("first@example.com");
+    expect(details.additionalEmails).toEqual(["second@example.com"]);
+    expect(details.primaryPhone).toMatchObject({
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
+    });
+  });
+
+  it("extracts mobile-only rows with WhatsApp headers", () => {
+    const details = extractContactDetailsFromRecord({
+      "Lead Name": "Phone Only",
+      WhatsApp: "+91 9876543210"
+    });
+
+    expect(details.primaryEmail).toBe("");
+    expect(details.primaryPhone).toMatchObject({
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
+    });
+  });
+});
+
+describe("normalizePhoneWithCountryCode", () => {
+  it("applies a separate country code to a 10-digit mobile", () => {
+    expect(normalizePhoneWithCountryCode("9876543210", "91")).toMatchObject({
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
+    });
+  });
+
+  it("keeps explicit +91 values split into country code and mobile", () => {
+    expect(normalizePhoneWithCountryCode("+91 9876543210", "91")).toMatchObject({
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
     });
   });
 });

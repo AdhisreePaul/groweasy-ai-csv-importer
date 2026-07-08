@@ -1,7 +1,14 @@
 import {
+  appendToNote,
+  cleanCellValue,
   crmLeadSchema,
+  DATA_SOURCES,
+  extractContactDetailsFromRecord,
   importResponseSchema,
   importedRecordSchema,
+  normalizeHeaderKey,
+  normalizePhoneWithCountryCode,
+  type CrmStatus,
   type DataSource,
   type ImportResponse,
   type ImportedRecord,
@@ -131,22 +138,23 @@ export class AiExtractionService {
     const postProcessed = postProcessImportedRecords(
       importedRecords,
       skippedRecords,
-      skippedSourceRows
+      input.records,
+      input.defaultDataSource
     );
 
     const response: ImportResponse = {
       import_id: input.importId ?? crypto.randomUUID(),
-      total_imported: postProcessed.length,
-      total_skipped: skippedRecords.length,
+      total_imported: postProcessed.importedRecords.length,
+      total_skipped: postProcessed.skippedRecords.length,
       summary: {
         total_rows: input.records.length,
         processed_rows: input.records.length,
-        imported_count: postProcessed.length,
-        skipped_count: skippedRecords.length,
+        imported_count: postProcessed.importedRecords.length,
+        skipped_count: postProcessed.skippedRecords.length,
         error_count: failedBatches
       },
-      imported_records: postProcessed,
-      skipped_records: skippedRecords,
+      imported_records: postProcessed.importedRecords,
+      skipped_records: postProcessed.skippedRecords,
       errors: []
     };
 
@@ -285,38 +293,351 @@ function repairJsonIfSafe(value: string): string | null {
 
 function postProcessImportedRecords(
   records: ImportedRecord[],
-  skippedRecords: SkippedRecord[],
-  skippedSourceRows: Set<number>
-): ImportedRecord[] {
+  aiSkippedRecords: SkippedRecord[],
+  sourceRecords: AiInputRecord[],
+  defaultDataSource?: DataSource
+): { importedRecords: ImportedRecord[]; skippedRecords: SkippedRecord[] } {
+  const rawBySourceRow = new Map(
+    sourceRecords.map((record) => [record.source_row, record.raw_record])
+  );
   const importedBySourceRow = new Map<number, ImportedRecord>();
+  const skippedBySourceRow = new Map<number, SkippedRecord>();
+
+  for (const record of aiSkippedRecords) {
+    const skippedRecord: SkippedRecord = {
+      source_row: record.source_row,
+      reason: record.reason || "Missing both email and mobile number",
+      raw_record: record.raw_record ?? rawBySourceRow.get(record.source_row)
+    };
+
+    skippedBySourceRow.set(record.source_row, skippedRecord);
+  }
 
   for (const record of records) {
-    const parsed = importedRecordSchema.safeParse(record);
+    const repairedRecord = repairImportedRecord(
+      record,
+      rawBySourceRow.get(record.source_row)
+    );
+    const parsed = importedRecordSchema.safeParse(repairedRecord);
 
     if (!parsed.success) {
-      addSkippedRecord(skippedRecords, skippedSourceRows, {
+      skippedBySourceRow.set(record.source_row, {
         source_row: record.source_row,
-        reason: "Imported record failed final schema validation"
+        reason: "Imported record failed final schema validation",
+        raw_record: rawBySourceRow.get(record.source_row)
       });
       continue;
     }
 
-    if (!record.email && !record.mobile_without_country_code) {
-      addSkippedRecord(skippedRecords, skippedSourceRows, {
+    if (!parsed.data.email && !parsed.data.mobile_without_country_code) {
+      skippedBySourceRow.set(record.source_row, {
         source_row: record.source_row,
-        reason: "Missing both email and mobile number"
+        reason: "Missing both email and mobile number",
+        raw_record: rawBySourceRow.get(record.source_row)
       });
       continue;
     }
 
-    if (!skippedSourceRows.has(record.source_row)) {
-      importedBySourceRow.set(record.source_row, parsed.data);
+    importedBySourceRow.set(record.source_row, parsed.data);
+    skippedBySourceRow.delete(record.source_row);
+  }
+
+  for (const sourceRecord of sourceRecords) {
+    if (importedBySourceRow.has(sourceRecord.source_row)) {
+      continue;
+    }
+
+    const existingSkip = skippedBySourceRow.get(sourceRecord.source_row);
+
+    if (existingSkip?.reason.startsWith("AI batch failed after retry")) {
+      continue;
+    }
+
+    const fallbackRecord = buildDeterministicRecordFromRaw(
+      sourceRecord.source_row,
+      sourceRecord.raw_record,
+      defaultDataSource
+    );
+
+    if (fallbackRecord) {
+      importedBySourceRow.set(sourceRecord.source_row, fallbackRecord);
+      skippedBySourceRow.delete(sourceRecord.source_row);
+      continue;
+    }
+
+    skippedBySourceRow.set(sourceRecord.source_row, {
+      source_row: sourceRecord.source_row,
+      reason: "Missing both email and mobile number",
+      raw_record: sourceRecord.raw_record
+    });
+  }
+
+  const importedRecords = [...importedBySourceRow.values()].sort(
+    (left, right) => left.source_row - right.source_row
+  );
+  const skippedRecords = [...skippedBySourceRow.values()]
+    .filter((record) => !importedBySourceRow.has(record.source_row))
+    .sort((left, right) => left.source_row - right.source_row);
+
+  return { importedRecords, skippedRecords };
+}
+
+function repairImportedRecord(
+  record: ImportedRecord,
+  rawRecord: Record<string, unknown> | undefined
+): ImportedRecord {
+  const contactDetails = rawRecord
+    ? extractContactDetailsFromRecord(rawRecord)
+    : null;
+  const aiPhone = normalizePhoneWithCountryCode(
+    record.mobile_without_country_code,
+    record.country_code
+  );
+  const primaryPhone =
+    contactDetails?.primaryPhone ??
+    (aiPhone.mobile_without_country_code ? aiPhone : null);
+  let crmNote = cleanCellValue(record.crm_note);
+
+  if (contactDetails?.additionalEmails.length) {
+    crmNote = appendToNote(
+      crmNote,
+      `Additional emails: ${contactDetails.additionalEmails.join(", ")}.`
+    );
+  }
+
+  if (contactDetails?.additionalPhones.length) {
+    crmNote = appendToNote(
+      crmNote,
+      `Additional mobiles: ${contactDetails.additionalPhones
+        .map((phone) => phone.mobile_without_country_code)
+        .join(", ")}.`
+    );
+  }
+
+  return {
+    ...record,
+    email: contactDetails?.primaryEmail || cleanCellValue(record.email),
+    country_code: primaryPhone?.country_code ?? cleanCellValue(record.country_code),
+    mobile_without_country_code:
+      primaryPhone?.mobile_without_country_code ??
+      cleanCellValue(record.mobile_without_country_code),
+    country:
+      cleanCellValue(record.country) ||
+      (primaryPhone?.country_code === "+91" ? "India" : ""),
+    crm_note: crmNote
+  };
+}
+
+function buildDeterministicRecordFromRaw(
+  sourceRow: number,
+  rawRecord: Record<string, unknown>,
+  defaultDataSource?: DataSource
+): ImportedRecord | null {
+  const contactDetails = extractContactDetailsFromRecord(rawRecord);
+
+  if (!contactDetails.primaryEmail && !contactDetails.primaryPhone) {
+    return null;
+  }
+
+  const [city, stateFromLocation] = parseLocation(
+    findRawValue(rawRecord, ["city", "current_location", "location", "place"])
+  );
+  const joinedText = Object.values(rawRecord).map(cleanCellValue).join(" ");
+  let crmNote = "";
+
+  if (contactDetails.additionalEmails.length) {
+    crmNote = appendToNote(
+      crmNote,
+      `Additional emails: ${contactDetails.additionalEmails.join(", ")}.`
+    );
+  }
+
+  if (contactDetails.additionalPhones.length) {
+    crmNote = appendToNote(
+      crmNote,
+      `Additional mobiles: ${contactDetails.additionalPhones
+        .map((phone) => phone.mobile_without_country_code)
+        .join(", ")}.`
+    );
+  }
+
+  return importedRecordSchema.parse({
+    source_row: sourceRow,
+    created_at: new Date().toISOString(),
+    name: findRawValue(rawRecord, [
+      "name",
+      "full_name",
+      "client_name",
+      "buyer_name",
+      "customer",
+      "lead"
+    ]),
+    email: contactDetails.primaryEmail,
+    country_code: contactDetails.primaryPhone?.country_code ?? "",
+    mobile_without_country_code:
+      contactDetails.primaryPhone?.mobile_without_country_code ?? "",
+    company: findRawValue(rawRecord, [
+      "company",
+      "organization",
+      "organisation",
+      "business",
+      "firm",
+      "builder"
+    ]),
+    city,
+    state: findRawValue(rawRecord, ["state"]) || stateFromLocation,
+    country:
+      findRawValue(rawRecord, ["country"]) ||
+      (contactDetails.primaryPhone?.country_code === "+91" ? "India" : ""),
+    lead_owner:
+      findRawValue(rawRecord, [
+        "lead_owner",
+        "owner",
+        "sales_person",
+        "salesperson",
+        "assigned_to"
+      ]) || "Unassigned",
+    crm_status: inferStatus(joinedText),
+    crm_note: crmNote,
+    data_source: inferDataSource(joinedText, defaultDataSource),
+    possession_time: findRawValue(rawRecord, [
+      "possession",
+      "possession_time",
+      "move_in",
+      "timeline"
+    ]),
+    description: buildDescription(rawRecord)
+  });
+}
+
+function findRawValue(
+  record: Record<string, unknown>,
+  aliases: readonly string[]
+): string {
+  const normalizedAliases = aliases.map(normalizeHeaderKey);
+
+  for (const [key, value] of Object.entries(record)) {
+    const normalizedKey = normalizeHeaderKey(key);
+
+    if (normalizedAliases.some((alias) => normalizedKey === alias)) {
+      const cleaned = cleanCellValue(value);
+
+      if (cleaned) {
+        return cleaned;
+      }
     }
   }
 
-  return [...importedBySourceRow.values()].sort(
-    (left, right) => left.source_row - right.source_row
+  for (const [key, value] of Object.entries(record)) {
+    const normalizedKey = normalizeHeaderKey(key);
+
+    if (
+      normalizedAliases.some(
+        (alias) =>
+          alias.length > 4 &&
+          (normalizedKey.startsWith(`${alias}_`) ||
+            normalizedKey.endsWith(`_${alias}`))
+      )
+    ) {
+      const cleaned = cleanCellValue(value);
+
+      if (cleaned) {
+        return cleaned;
+      }
+    }
+  }
+
+  return "";
+}
+
+function parseLocation(value: string): [string, string] {
+  const cleaned = cleanCellValue(value);
+
+  if (!cleaned) {
+    return ["", ""];
+  }
+
+  if (cleaned.includes(",")) {
+    const [city = "", state = ""] = cleaned.split(",").map(cleanCellValue);
+    return [city, state];
+  }
+
+  return [cleaned, ""];
+}
+
+function buildDescription(record: Record<string, unknown>): string {
+  return (
+    findRawValue(record, [
+      "description",
+      "remarks",
+      "remark",
+      "comment",
+      "comments",
+      "notes",
+      "lead_notes",
+      "requirement",
+      "requirements"
+    ]) ||
+    Object.entries(record)
+      .map(([key, value]) => {
+        const cleaned = cleanCellValue(value);
+        return cleaned ? `${key}: ${cleaned}` : "";
+      })
+      .filter(Boolean)
+      .join("; ")
   );
+}
+
+function inferStatus(text: string): CrmStatus {
+  const lowerText = text.toLowerCase();
+
+  if (/\b(sold|booked|closed|converted|sale done)\b/.test(lowerText)) {
+    return "SALE_DONE";
+  }
+
+  if (
+    /\b(did not connect|could not connect|unreachable|not picking|no answer)\b/.test(
+      lowerText
+    )
+  ) {
+    return "DID_NOT_CONNECT";
+  }
+
+  if (/\b(fake|spam|duplicate|invalid|not interested|bad lead)\b/.test(lowerText)) {
+    return "BAD_LEAD";
+  }
+
+  return "GOOD_LEAD_FOLLOW_UP";
+}
+
+function inferDataSource(text: string, defaultDataSource?: DataSource): DataSource {
+  const lowerText = text.toLowerCase();
+
+  if (lowerText.includes("meridian tower")) {
+    return "meridian_tower";
+  }
+
+  if (lowerText.includes("eden park")) {
+    return "eden_park";
+  }
+
+  if (lowerText.includes("varah swamy") || lowerText.includes("varahswamy")) {
+    return "varah_swamy";
+  }
+
+  if (lowerText.includes("sarjapur plot")) {
+    return "sarjapur_plots";
+  }
+
+  if (lowerText.includes("leads on demand")) {
+    return "leads_on_demand";
+  }
+
+  if (defaultDataSource && DATA_SOURCES.includes(defaultDataSource)) {
+    return defaultDataSource;
+  }
+
+  return "leads_on_demand";
 }
 
 function addSkippedRecord(

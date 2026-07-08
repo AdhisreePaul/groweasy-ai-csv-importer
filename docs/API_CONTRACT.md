@@ -84,7 +84,6 @@ Response body:
         "Notes": "Asked for callback but gave no contact details"
       }
     }
-  ],
   ]
 }
 ```

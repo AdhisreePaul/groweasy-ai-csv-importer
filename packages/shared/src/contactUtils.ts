@@ -4,6 +4,17 @@ export interface NormalizedPhone {
   raw: string;
 }
 
+export interface ExtractedContactDetails {
+  emails: string[];
+  primaryEmail: string;
+  additionalEmails: string[];
+  phoneCandidates: string[];
+  phones: NormalizedPhone[];
+  primaryPhone: NormalizedPhone | null;
+  additionalPhones: NormalizedPhone[];
+  unusedPhoneCandidates: string[];
+}
+
 const emailPattern =
   /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 
@@ -74,6 +85,95 @@ export function normalizeIndianPhone(phone: unknown): NormalizedPhone {
   };
 }
 
+export function normalizePhoneWithCountryCode(
+  phone: unknown,
+  countryCode: unknown
+): NormalizedPhone {
+  const normalized = normalizeIndianPhone(phone);
+  const normalizedCountryCode = normalizeCountryCode(countryCode);
+
+  if (!normalized.mobile_without_country_code) {
+    return normalized;
+  }
+
+  if (normalized.country_code) {
+    return normalized;
+  }
+
+  if (normalizedCountryCode) {
+    return {
+      ...normalized,
+      country_code: normalizedCountryCode
+    };
+  }
+
+  return normalized;
+}
+
+export function normalizeCountryCode(value: unknown): string {
+  const cleaned = cleanCellValue(value);
+
+  if (!cleaned) {
+    return "";
+  }
+
+  const digits = cleaned.replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  return `+${digits}`;
+}
+
+export function normalizeHeaderKey(value: unknown): string {
+  return cleanCellValue(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+export function extractContactDetailsFromRecord(
+  record: Record<string, unknown>
+): ExtractedContactDetails {
+  const countryCode = findFirstValueByHeader(record, countryCodeHeaderAliases);
+  const obviousEmailText = findValuesByHeader(record, emailHeaderAliases).join(" ");
+  const allText = Object.values(record).map(cleanCellValue).join(" ");
+  const emails = uniqueValues([
+    ...extractEmails(obviousEmailText),
+    ...extractEmails(allText)
+  ]);
+  const obviousPhoneValues = findValuesByHeader(record, phoneHeaderAliases);
+  const phoneCandidates = uniqueValues([
+    ...obviousPhoneValues.flatMap(extractPhoneCandidates),
+    ...extractPhoneCandidates(allText)
+  ]);
+  const phones = uniquePhones(
+    phoneCandidates
+      .map((candidate) => normalizePhoneWithCountryCode(candidate, countryCode))
+      .filter((phone) => phone.mobile_without_country_code.length > 0)
+  );
+  const primaryPhone =
+    phones.find((phone) => hasExplicitCountryCode(phone.raw)) ?? phones[0] ?? null;
+  const additionalPhones = phones.filter((phone) => phone !== primaryPhone);
+  const unusedPhoneCandidates = phoneCandidates.filter((candidate) => {
+    const normalized = normalizePhoneWithCountryCode(candidate, countryCode);
+    return normalized.mobile_without_country_code.length === 0;
+  });
+
+  return {
+    emails,
+    primaryEmail: emails[0] ?? "",
+    additionalEmails: emails.slice(1),
+    phoneCandidates,
+    phones,
+    primaryPhone,
+    additionalPhones,
+    unusedPhoneCandidates
+  };
+}
+
 export function normalizeDate(value: unknown): string {
   const text = cleanCellValue(value);
 
@@ -123,18 +223,124 @@ export function cleanCellValue(value: unknown): string {
 }
 
 export function hasContactInfo(record: Record<string, unknown>): boolean {
-  const text = Object.values(record).map(cleanCellValue).join(" ");
-  const emails = extractEmails(text);
+  const contactDetails = extractContactDetailsFromRecord(record);
+  return Boolean(contactDetails.primaryEmail || contactDetails.primaryPhone);
+}
 
-  if (emails.length > 0) {
-    return true;
+function findValuesByHeader(
+  record: Record<string, unknown>,
+  aliases: readonly string[]
+): string[] {
+  const normalizedAliases = aliases.map(normalizeHeaderKey);
+  const values: string[] = [];
+
+  for (const [key, value] of Object.entries(record)) {
+    const normalizedKey = normalizeHeaderKey(key);
+
+    if (!matchesHeaderAlias(normalizedKey, normalizedAliases)) {
+      continue;
+    }
+
+    const cleaned = cleanCellValue(value);
+
+    if (cleaned) {
+      values.push(cleaned);
+    }
   }
 
-  return extractPhoneCandidates(text).some((candidate) => {
-    const normalized = normalizeIndianPhone(candidate);
-    return normalized.mobile_without_country_code.length > 0;
-  });
+  return values;
 }
+
+function findFirstValueByHeader(
+  record: Record<string, unknown>,
+  aliases: readonly string[]
+): string {
+  return findValuesByHeader(record, aliases)[0] ?? "";
+}
+
+function matchesHeaderAlias(
+  normalizedHeader: string,
+  normalizedAliases: string[]
+): boolean {
+  return normalizedAliases.some(
+    (alias) =>
+      normalizedHeader === alias ||
+      normalizedHeader.endsWith(`_${alias}`) ||
+      normalizedHeader.startsWith(`${alias}_`)
+  );
+}
+
+function uniqueValues(values: string[]): string[] {
+  const seen = new Set<string>();
+  const unique: string[] = [];
+
+  for (const value of values) {
+    const cleaned = cleanCellValue(value);
+    const key = cleaned.toLowerCase();
+
+    if (!cleaned || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    unique.push(cleaned);
+  }
+
+  return unique;
+}
+
+function uniquePhones(phones: NormalizedPhone[]): NormalizedPhone[] {
+  const seen = new Set<string>();
+  const unique: NormalizedPhone[] = [];
+
+  for (const phone of phones) {
+    const key = `${phone.country_code}|${phone.mobile_without_country_code}`;
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    unique.push(phone);
+  }
+
+  return unique;
+}
+
+function hasExplicitCountryCode(value: string): boolean {
+  return /^\s*(?:\+|\(\+)/.test(value);
+}
+
+const emailHeaderAliases = [
+  "email",
+  "email_address",
+  "email_id",
+  "email_ids",
+  "mail",
+  "mail_id",
+  "mail_ids",
+  "e_mail"
+] as const;
+
+const phoneHeaderAliases = [
+  "mobile",
+  "phone",
+  "contact",
+  "contact_number",
+  "mobile_number",
+  "phone_number",
+  "whatsapp",
+  "whatsapp_number",
+  "phone_whatsapp",
+  "mobile_whatsapp"
+] as const;
+
+const countryCodeHeaderAliases = [
+  "country_code",
+  "countrycode",
+  "dial_code",
+  "isd_code"
+] as const;
 
 function parseDateValue(value: string): Date | null {
   const isoDateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);

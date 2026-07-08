@@ -99,4 +99,4 @@ Allowed `data_source` values:
 
 ## Current Scope
 
-Only planning and documentation should be created at this stage. Do not write application code yet.
+The project now includes the implemented monorepo, frontend preview/import flow, backend CSV and AI mock pipeline, tests, samples, Docker setup, and final documentation. Future agents should preserve the non-negotiable rules above and make targeted changes only.

@@ -138,6 +138,8 @@ export function isImportApiResponse(value: unknown): value is ImportApiResponse 
   }
 
   return (
+    value.summary.totalImported === value.importedRecords.length &&
+    value.summary.totalSkipped === value.skippedRecords.length &&
     value.importedRecords.every(isImportedRecord) &&
     value.skippedRecords.every(isSkippedRecord)
   );
@@ -200,7 +202,5 @@ function isAllowedValue<T extends string>(
   value: unknown,
   allowedValues: readonly T[]
 ): value is T {
-  return (
-    typeof value === "string" && allowedValues.includes(value as T)
-  );
+  return typeof value === "string" && allowedValues.includes(value as T);
 }

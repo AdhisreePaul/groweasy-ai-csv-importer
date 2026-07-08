@@ -88,6 +88,171 @@ describe("AiExtractionService with mock provider", () => {
     expect(result.imported_records[0]?.crm_note).toContain("8012345678");
   });
 
+  it("imports rows with only email, only mobile, both contacts, and skips neither", async () => {
+    const service = new AiExtractionService(new MockAiProvider(), 10);
+
+    const result = await service.extractLeads({
+      records: [
+        {
+          source_row: 2,
+          raw_record: {
+            Name: "Email Only",
+            Email: "email.only@example.com"
+          }
+        },
+        {
+          source_row: 3,
+          raw_record: {
+            Name: "Mobile Only",
+            Mobile: "9876543210"
+          }
+        },
+        {
+          source_row: 4,
+          raw_record: {
+            Name: "Both Contacts",
+            Email: "both@example.com",
+            Phone: "+91 98765 43210"
+          }
+        },
+        {
+          source_row: 5,
+          raw_record: {
+            Name: "No Contact",
+            Notes: "No email or mobile shared"
+          }
+        }
+      ]
+    });
+
+    expect(result.total_imported).toBe(3);
+    expect(result.total_skipped).toBe(1);
+    expect(result.imported_records.map((record) => record.source_row)).toEqual([
+      2,
+      3,
+      4
+    ]);
+    expect(result.imported_records[0]).toMatchObject({
+      email: "email.only@example.com",
+      mobile_without_country_code: ""
+    });
+    expect(result.imported_records[1]).toMatchObject({
+      email: "",
+      mobile_without_country_code: "9876543210"
+    });
+    expect(result.skipped_records[0]).toMatchObject({
+      source_row: 5,
+      reason: "Missing both email and mobile number",
+      raw_record: {
+        Name: "No Contact",
+        Notes: "No email or mobile shared"
+      }
+    });
+  });
+
+  it("normalizes country_code 91 and +91 mobile values", async () => {
+    const service = new AiExtractionService(new MockAiProvider(), 10);
+
+    const result = await service.extractLeads({
+      records: [
+        {
+          source_row: 2,
+          raw_record: {
+            Name: "Separate Code",
+            "Country Code": "91",
+            Mobile: "9876543210"
+          }
+        },
+        {
+          source_row: 3,
+          raw_record: {
+            Name: "Inline Code",
+            Phone: "+91 9876543210"
+          }
+        }
+      ]
+    });
+
+    expect(result.total_imported).toBe(2);
+    expect(result.imported_records[0]).toMatchObject({
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
+    });
+    expect(result.imported_records[1]).toMatchObject({
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
+    });
+  });
+
+  it("handles headers with spaces, underscores, and case variations", async () => {
+    const service = new AiExtractionService(new MockAiProvider(), 10);
+
+    const result = await service.extractLeads({
+      records: [
+        {
+          source_row: 2,
+          raw_record: {
+            "Lead Name": "Header Variant",
+            "Email Address": "variant@example.com",
+            COUNTRY_CODE: "91",
+            contact_number: "98765 43210"
+          }
+        },
+        {
+          source_row: 3,
+          raw_record: {
+            "Lead Name": "Mail Id",
+            mail_id: "mailid@example.com",
+            WhatsApp: "+91-90000-11122"
+          }
+        }
+      ]
+    });
+
+    expect(result.total_imported).toBe(2);
+    expect(result.imported_records[0]).toMatchObject({
+      email: "variant@example.com",
+      country_code: "+91",
+      mobile_without_country_code: "9876543210"
+    });
+    expect(result.imported_records[1]).toMatchObject({
+      email: "mailid@example.com",
+      country_code: "+91",
+      mobile_without_country_code: "9000011122"
+    });
+  });
+
+  it("recovers contact details when AI skips a contactable row", async () => {
+    const provider = new StaticProvider(
+      JSON.stringify({
+        importedRecords: [],
+        skippedRecords: [
+          { rowIndex: 2, reason: "Missing both email and mobile number" }
+        ]
+      })
+    );
+    const service = new AiExtractionService(provider, 25, 0);
+
+    const result = await service.extractLeads({
+      records: [
+        {
+          source_row: 2,
+          raw_record: {
+            Name: "Recovered Lead",
+            "Email Address": "recovered@example.com"
+          }
+        }
+      ]
+    });
+
+    expect(result.total_imported).toBe(1);
+    expect(result.total_skipped).toBe(0);
+    expect(result.imported_records[0]).toMatchObject({
+      source_row: 2,
+      email: "recovered@example.com"
+    });
+  });
+
   it("batches records before sending them to the provider", async () => {
     const provider = new CountingProvider();
     const service = new AiExtractionService(provider, 2);
@@ -207,7 +372,15 @@ describe("AiExtractionService with mock provider", () => {
     const service = new AiExtractionService(provider, 25, 0);
 
     const result = await service.extractLeads({
-      records: [contactableRecord(2)]
+      records: [
+        {
+          source_row: 2,
+          raw_record: {
+            Name: "No Contact",
+            Notes: "Missing contact details"
+          }
+        }
+      ]
     });
 
     expect(result.total_skipped).toBe(1);

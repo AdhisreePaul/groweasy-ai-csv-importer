@@ -53,6 +53,23 @@ describe("isImportApiResponse", () => {
     ).toBe(false);
   });
 
+  it("rejects inconsistent response totals", () => {
+    expect(
+      isImportApiResponse({
+        success: true,
+        summary: {
+          totalRows: 1,
+          totalImported: 2,
+          totalSkipped: 0,
+          totalBatches: 1,
+          failedBatches: 0
+        },
+        importedRecords: [importedRecord],
+        skippedRecords: []
+      })
+    ).toBe(false);
+  });
+
   it("rejects malformed imported records", () => {
     expect(
       isImportApiResponse({

@@ -2,9 +2,8 @@ import {
   appendToNote,
   cleanCellValue,
   DATA_SOURCES,
-  extractEmails,
-  extractPhoneCandidates,
-  normalizeIndianPhone,
+  extractContactDetailsFromRecord,
+  normalizeHeaderKey,
   type CrmStatus,
   type DataSource,
   type ImportedRecord,
@@ -71,19 +70,9 @@ function normalizeMockRecord(
   defaultDataSource?: string
 ): ImportedRecord | null {
   const joinedText = Object.values(rawRecord).map(cleanCellValue).join(" ");
-  const emails = extractEmails(joinedText);
-  const phoneCandidates = extractPhoneCandidates(joinedText);
-  const normalizedPhones = phoneCandidates
-    .map(normalizeIndianPhone)
-    .filter((phone) => phone.mobile_without_country_code.length > 0);
-  const primaryPhone =
-    normalizedPhones.find((phone) => hasExplicitIndianPrefix(phone.raw)) ??
-    normalizedPhones[0];
-  const additionalPhones = normalizedPhones.filter(
-    (phone) => phone !== primaryPhone
-  );
+  const contactDetails = extractContactDetailsFromRecord(rawRecord);
 
-  if (emails.length === 0 && !primaryPhone) {
+  if (!contactDetails.primaryEmail && !contactDetails.primaryPhone) {
     return null;
   }
 
@@ -96,34 +85,29 @@ function normalizeMockRecord(
   ]));
   const explicitState = findValue(rawRecord, ["state"]);
   const country = findValue(rawRecord, ["country"]);
-  const primaryEmail = emails[0] ?? "";
+  const primaryEmail = contactDetails.primaryEmail;
   let crmNote = "";
 
-  if (emails.length > 1) {
+  if (contactDetails.additionalEmails.length > 0) {
     crmNote = appendToNote(
       crmNote,
-      `Additional emails: ${emails.slice(1).join(", ")}.`
+      `Additional emails: ${contactDetails.additionalEmails.join(", ")}.`
     );
   }
 
-  if (additionalPhones.length > 0) {
+  if (contactDetails.additionalPhones.length > 0) {
     crmNote = appendToNote(
       crmNote,
-      `Additional mobiles: ${additionalPhones
+      `Additional mobiles: ${contactDetails.additionalPhones
         .map((phone) => phone.mobile_without_country_code)
         .join(", ")}.`
     );
   }
 
-  const unusedPhoneCandidates = phoneCandidates.filter((candidate) => {
-    const normalized = normalizeIndianPhone(candidate);
-    return normalized.mobile_without_country_code.length === 0;
-  });
-
-  if (unusedPhoneCandidates.length > 0) {
+  if (contactDetails.unusedPhoneCandidates.length > 0) {
     crmNote = appendToNote(
       crmNote,
-      `Additional phone values not used as primary mobile: ${unusedPhoneCandidates.join(", ")}.`
+      `Additional phone values not used as primary mobile: ${contactDetails.unusedPhoneCandidates.join(", ")}.`
     );
   }
 
@@ -153,8 +137,9 @@ function normalizeMockRecord(
       "lead"
     ]),
     email: primaryEmail,
-    country_code: primaryPhone?.country_code ?? "",
-    mobile_without_country_code: primaryPhone?.mobile_without_country_code ?? "",
+    country_code: contactDetails.primaryPhone?.country_code ?? "",
+    mobile_without_country_code:
+      contactDetails.primaryPhone?.mobile_without_country_code ?? "",
     company: findValue(rawRecord, [
       "company",
       "organization",
@@ -165,7 +150,8 @@ function normalizeMockRecord(
     ]),
     city,
     state: explicitState || stateFromLocation,
-    country: country || (primaryPhone?.country_code === "+91" ? "India" : ""),
+    country:
+      country || (contactDetails.primaryPhone?.country_code === "+91" ? "India" : ""),
     lead_owner:
       findValue(rawRecord, [
         "lead owner",
@@ -195,9 +181,24 @@ function findValue(record: Record<string, unknown>, headerHints: string[]): stri
   for (const [key, value] of entries) {
     const normalizedKey = normalizeHeader(key);
 
+    if (normalizedHints.some((hint) => normalizedKey === hint)) {
+      const cleaned = cleanCellValue(value);
+
+      if (cleaned) {
+        return cleaned;
+      }
+    }
+  }
+
+  for (const [key, value] of entries) {
+    const normalizedKey = normalizeHeader(key);
+
     if (
       normalizedHints.some(
-        (hint) => normalizedKey === hint || normalizedKey.includes(hint)
+        (hint) =>
+          hint.length > 4 &&
+          (normalizedKey.startsWith(`${hint} `) ||
+            normalizedKey.endsWith(` ${hint}`))
       )
     ) {
       const cleaned = cleanCellValue(value);
@@ -212,7 +213,7 @@ function findValue(record: Record<string, unknown>, headerHints: string[]): stri
 }
 
 function normalizeHeader(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return normalizeHeaderKey(value).replace(/_/g, " ");
 }
 
 function parseLocation(value: string): [string, string] {
@@ -290,10 +291,6 @@ function inferDataSource(text: string, defaultDataSource?: string): DataSource {
 
 function isAllowedDataSource(value: string | undefined): value is DataSource {
   return DATA_SOURCES.includes(value as DataSource);
-}
-
-function hasExplicitIndianPrefix(value: string): boolean {
-  return /^\s*(?:\+91|\(\+91\)|91[\s().-])/.test(value);
 }
 
 function buildFallbackDescription(record: Record<string, unknown>): string {

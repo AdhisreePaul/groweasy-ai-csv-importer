@@ -52,7 +52,7 @@ No application code should be written in this milestone.
 
 ### 4. Build Backend Import Endpoint
 
-- Add `POST /api/imports/csv`.
+- Add `POST /api/import/csv`.
 - Implement the endpoint in the Node/Express API app.
 - Accept `multipart/form-data`.
 - Validate file presence, type, size, and readability.
@@ -81,10 +81,10 @@ No application code should be written in this milestone.
 
 ### 7. Return Structured Results
 
-- Return `total_imported`.
-- Return `total_skipped`.
-- Return normalized CRM leads in `imported_records`.
-- Return skipped records with reasons in `skipped_records`.
+- Return `summary.totalImported`.
+- Return `summary.totalSkipped`.
+- Return normalized CRM leads in `importedRecords`.
+- Return skipped records with reasons in `skippedRecords`.
 - Return row-level errors.
 - Keep response stateless and self-contained.
 
@@ -106,8 +106,8 @@ No application code should be written in this milestone.
 - Test multiple email and mobile handling.
 - Test invalid AI output handling.
 - Test allowed enum enforcement.
-- Test that `total_imported` matches `imported_records.length`.
-- Test that `total_skipped` matches `skipped_records.length`.
+- Test that `summary.totalImported` matches `importedRecords.length`.
+- Test that `summary.totalSkipped` matches `skippedRecords.length`.
 
 ### 10. Polish For Assignment Review
 
@@ -144,7 +144,7 @@ No application code should be written in this milestone.
 - Backend skips records with neither email nor mobile.
 - Backend handles multiple emails and mobiles correctly.
 - API returns structured JSON.
-- API returns `imported_records`, `skipped_records`, `total_imported`, and `total_skipped`.
+- API returns `importedRecords`, `skippedRecords`, `summary.totalImported`, and `summary.totalSkipped`.
 - App remains stateless.
 - No database is introduced.
 - TypeScript is used everywhere.
