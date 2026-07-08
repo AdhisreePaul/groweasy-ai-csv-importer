@@ -1,0 +1,4 @@
+Name,Primary Email,Other Emails,Phones,Property,Country,Status Text,Lead Owner,Description
+"Nolan Multi","nolan.multi@example.com","nolan.alt@example.com, nolan.work@example.com","+91 90000 60001; 90000 60002; 080-12345678","Meridian Tower","India","hot maybe","Sara","Prefers WhatsApp, compare 2BHK and 3BHK"
+"Tara Many Phones","tara.many@example.com","","(+91) 90000-60003 / 90000 60004","Sarjapur Plots","India","sale done","Sara","Token amount discussed"
+"No Contact Multi",,,"","Eden Park","India","not sure","Sara","Should be skipped because no email or mobile"

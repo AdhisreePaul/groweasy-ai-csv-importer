@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-ink: 23 32 27;
+  --color-leaf: 47 125 75;
+  --color-leaf-dark: 36 101 59;
+  --color-mint: 221 244 230;
+  --color-line: 215 226 219;
+  --color-canvas: 246 248 247;
+  --color-soft: 249 251 250;
+  --color-muted: 96 113 105;
+  --color-sky: 47 111 159;
+  --color-sky-soft: 228 241 250;
+  --color-sky-ink: 31 91 132;
+  --color-amber: 217 154 38;
+  --color-amber-soft: 255 244 216;
+  --color-amber-ink: 138 90 4;
+  --color-rose: 216 92 92;
+}
+
+.dark {
+  color-scheme: dark;
+  --color-ink: 228 239 232;
+  --color-leaf: 91 197 127;
+  --color-leaf-dark: 73 174 108;
+  --color-mint: 22 64 43;
+  --color-line: 54 72 62;
+  --color-canvas: 9 15 25;
+  --color-soft: 17 24 39;
+  --color-muted: 163 180 171;
+  --color-sky: 96 165 250;
+  --color-sky-soft: 18 46 71;
+  --color-sky-ink: 186 220 255;
+  --color-amber: 245 184 74;
+  --color-amber-soft: 71 50 16;
+  --color-amber-ink: 255 224 143;
+  --color-rose: 248 113 113;
+}
+
+body {
+  margin: 0;
+  background: rgb(var(--color-canvas));
+  color: rgb(var(--color-ink));
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.dark .bg-white {
+  background-color: rgb(var(--color-soft));
+}
+
+.dark .text-white {
+  color: rgb(255 255 255);
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+}
+
+.dark pre {
+  color-scheme: dark;
+}

@@ -1,0 +1,4 @@
+Lead,Email Address,Mobile,Project Source,City,Disposition,Lead Owner,Remark
+"Fake Email Lead","not-an-email","call later","Eden Park","Chennai","maybe valid?","Demo Owner","Invalid email and no usable mobile"
+"Only Notes Lead",,,"Meridian Tower","Bengaluru","fresh","Demo Owner","Asked for callback but provided no contact details"
+"Valid Recovery Lead","recovery.lead@example.com","+91 90000 50001","Varah Swamy","Hyderabad","follow up","Demo Owner","Valid row included so sample is not all skipped"
