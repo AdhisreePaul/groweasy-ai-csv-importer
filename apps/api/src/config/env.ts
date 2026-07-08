@@ -22,24 +22,30 @@ const optionalSecret = z
 
 const envSchema = z.object({
   NODE_ENV: z
-    .enum(["development", "test", "production"])
+    .enum(["development", "production"])
     .default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   CORS_ORIGIN: z.string().min(1).default("http://localhost:3000"),
   JSON_BODY_LIMIT: z.string().min(1).default("1mb"),
   LOG_REQUESTS: booleanFromEnv,
-  MAX_CSV_FILE_SIZE_BYTES: z.coerce
+  MAX_FILE_SIZE_MB: z.coerce
     .number()
-    .int()
     .positive()
-    .default(5 * 1024 * 1024),
-  AI_PROVIDER: z.enum(["mock", "openai", "gemini", "claude"]).default("mock"),
-  AI_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(25),
-  AI_BATCH_RETRY_LIMIT: z.coerce.number().int().min(0).max(5).default(1),
-  AI_REQUEST_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(30000),
-  AI_API_KEY: optionalSecret,
-  GEMINI_API_KEY: optionalSecret,
-  GEMINI_MODEL: z.string().min(1).default("gemini-2.0-flash")
+    .max(100)
+    .default(5),
+  AI_PROVIDER: z.literal("openai").default("openai"),
+  OPENAI_MODEL: z.string().min(1).default("gpt-4.1-nano"),
+  OPENAI_API_KEY: optionalSecret,
+  BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(25),
+  AI_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2)
+}).superRefine((value, context) => {
+  if (!value.OPENAI_API_KEY) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["OPENAI_API_KEY"],
+      message: "OPENAI_API_KEY is required when AI_PROVIDER=openai."
+    });
+  }
 });
 
 export type Env = z.infer<typeof envSchema>;

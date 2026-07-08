@@ -26,10 +26,11 @@ ENV PORT=4000
 ENV CORS_ORIGIN=http://localhost:3000
 ENV JSON_BODY_LIMIT=1mb
 ENV LOG_REQUESTS=true
-ENV MAX_CSV_FILE_SIZE_BYTES=5242880
-ENV AI_PROVIDER=mock
-ENV AI_BATCH_SIZE=25
-ENV AI_BATCH_RETRY_LIMIT=1
+ENV AI_PROVIDER=openai
+ENV OPENAI_MODEL=gpt-4.1-nano
+ENV BATCH_SIZE=25
+ENV AI_MAX_RETRIES=2
+ENV MAX_FILE_SIZE_MB=5
 
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/apps/api/node_modules ./apps/api/node_modules

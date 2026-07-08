@@ -19,9 +19,7 @@ import type {
   AiProvider
 } from "./aiProvider.interface.js";
 import { buildAiExtractionPrompt } from "./aiPrompt.builder.js";
-import { GeminiAiProvider } from "./geminiAiProvider.js";
-import { MockAiProvider } from "./mockAiProvider.js";
-import { RealAiProviderPlaceholder } from "./realAiProvider.placeholder.js";
+import { OpenAiProvider } from "./openaiProvider.js";
 
 export { parseAiJsonResponse, parseStrictJson };
 
@@ -152,26 +150,17 @@ export class AiExtractionService {
 }
 
 export function createAiProvider(env: Env): AiProvider {
-  if (env.AI_PROVIDER === "mock") {
-    return new MockAiProvider();
-  }
-
-  if (env.AI_PROVIDER === "gemini") {
-    return new GeminiAiProvider({
-      apiKey: env.AI_API_KEY ?? env.GEMINI_API_KEY,
-      model: env.GEMINI_MODEL,
-      timeoutMs: env.AI_REQUEST_TIMEOUT_MS
-    });
-  }
-
-  return new RealAiProviderPlaceholder(env.AI_PROVIDER, env.AI_API_KEY);
+  return new OpenAiProvider({
+    apiKey: env.OPENAI_API_KEY,
+    model: env.OPENAI_MODEL
+  });
 }
 
 export function createAiExtractionService(env: Env): AiExtractionService {
   return new AiExtractionService(
     createAiProvider(env),
-    env.AI_BATCH_SIZE,
-    env.AI_BATCH_RETRY_LIMIT
+    env.BATCH_SIZE,
+    env.AI_MAX_RETRIES
   );
 }
 

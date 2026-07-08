@@ -28,7 +28,7 @@ No application code should be written in this milestone.
 - Use Next.js with TypeScript in `apps/web`.
 - Use Node.js, Express, and TypeScript in `apps/api`.
 - Choose package manager and workspace tooling.
-- Add root TypeScript, lint, format, and test configuration.
+- Add root TypeScript, lint, and build configuration.
 
 ### 2. Create Shared Types
 
@@ -129,7 +129,7 @@ No application code should be written in this milestone.
 6. AI extraction service.
 7. Backend normalization and response assembly.
 8. End-to-end manual tests with sample CSVs.
-9. Automated tests.
+9. Production build and typecheck verification.
 10. README and final cleanup.
 
 ## Acceptance Checklist

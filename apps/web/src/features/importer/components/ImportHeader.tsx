@@ -45,7 +45,7 @@ export function ImportHeader({
             type="button"
           >
             <Bot aria-hidden="true" className="h-4 w-4 text-leaf" />
-            Mock AI
+            OpenAI
           </button>
           <button
             aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}

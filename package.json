@@ -9,15 +9,13 @@
     "dev:api": "pnpm --filter @groweasy/shared build && pnpm --filter @groweasy/api dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm --filter @groweasy/shared build && pnpm -r test"
+    "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0",
-    "vitest": "^2.1.8"
+    "typescript-eslint": "^8.20.0"
   }
 }

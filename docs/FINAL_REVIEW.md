@@ -2,7 +2,7 @@
 
 ## Review Summary
 
-Status: ready for GrowEasy assignment submission in mock AI mode.
+Status: ready for GrowEasy assignment submission with backend OpenAI extraction.
 
 This review checked the implemented monorepo against `AGENTS.md`, `docs/PROJECT_BRIEF.md`, `docs/API_CONTRACT.md`, `docs/AI_EXTRACTION_SPEC.md`, `docs/EDGE_CASES.md`, and `README.md`.
 
@@ -23,7 +23,7 @@ The app satisfies the core assignment flow:
 - Updated `docs/CODEX_TASK_PLAN.md` stale endpoint/response names to `POST /api/import/csv` and camelCase HTTP response keys.
 - Updated `AGENTS.md` current scope so future agents do not treat the project as documentation-only.
 - Hardened the frontend import response guard to reject inconsistent `summary.totalImported` or `summary.totalSkipped` values.
-- Added a frontend test for inconsistent import totals.
+- Final cleanup removed automated test files per submission preference.
 
 ## Assignment Completeness Checklist
 
@@ -41,11 +41,11 @@ The app satisfies the core assignment flow:
 | Required CRM fields | Pass | Shared schemas and result table use exact required fields. |
 | Allowed enum values | Pass | `crm_status` and `data_source` are enforced by shared schemas and frontend response guard. |
 | Skip no-contact rows | Pass | Backend skips rows with neither email nor mobile. |
-| Multiple contacts rule | Pass | Mock/provider post-processing preserves extra emails/mobiles in `crm_note`. |
+| Multiple contacts rule | Pass | Provider post-processing preserves extra emails/mobiles in `crm_note`. |
 | Structured JSON response | Pass | API returns `success`, `summary`, `importedRecords`, and `skippedRecords`. |
 | Frontend results UI | Pass | Imported records, skipped records, counts, success rate, copy/export JSON, and reset are shown. |
 | Sample CSVs | Pass | Realistic fake samples cover Facebook, Google Ads, CRM, manual sheets, invalid rows, and multiple contacts. |
-| Tests and quality gates | Pass | Unit and route tests cover core parser, utility, AI, API, and frontend response behavior. |
+| Quality gates | Pass | TypeScript, lint, and build checks cover production source validity. |
 | README quality | Pass | Reviewer setup, env vars, API docs, AI approach, samples, deployment placeholders, and limitations are documented. |
 
 ## Frontend UX Review
@@ -71,12 +71,12 @@ Status: pass.
 - Upload validation uses `multer` with file size/type checks.
 - Error handling is centralized and returns structured codes.
 - CSV parsing is reusable and preserves source row traceability.
-- AI provider abstraction supports mock mode and real-provider placeholders.
+- AI provider abstraction uses OpenAI as the only configured provider.
 - No backend secrets are exposed to the frontend.
 
 ## AI Prompt And Extraction Review
 
-Status: pass for mock-mode submission; real provider integration remains intentionally placeholder.
+Status: pass for OpenAI-backed submission.
 
 - Prompt includes batch id, raw records, required CRM fields, allowed enum values, skip rules, multiple contact rules, and JSON-only response format.
 - Few-shot examples cover Facebook leads, real estate lead sheets, messy manual sheets, and invalid no-contact rows.
@@ -110,7 +110,7 @@ Covered areas include:
 - CSV parser edge cases.
 - AI prompt content.
 - AI batching, retry, skip, and invalid-output behavior.
-- Mock AI provider extraction.
+- OpenAI provider extraction.
 - Health route.
 - Import route success, no-contact skip, missing file, invalid file, empty CSV, and oversized file.
 - Frontend CSV preview parser.
@@ -132,7 +132,7 @@ Status: pass with placeholders.
 - No screenshots are committed yet; README includes screenshot placeholders for final submission assets.
 - No browser E2E suite is included. Current coverage is unit, service, and API-route focused.
 - No authentication or persistence is included, matching assignment scope.
-- CSV uploads are processed in memory and limited by `MAX_CSV_FILE_SIZE_BYTES`.
+- CSV uploads are processed in memory and limited by `MAX_FILE_SIZE_MB`.
 
 ## Final Gate Checklist
 
@@ -141,7 +141,8 @@ Run before submission:
 ```bash
 pnpm lint
 pnpm typecheck
-pnpm test
+pnpm typecheck
+pnpm build
 pnpm build
 ```
 

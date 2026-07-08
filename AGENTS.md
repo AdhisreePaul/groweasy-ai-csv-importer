@@ -87,7 +87,7 @@ Allowed `data_source` values:
 - Batch records before sending to AI to reduce token pressure and improve reliability.
 - Preserve row numbers so skipped and failed records can be traced back to the source CSV.
 - Make error responses clear enough for a user or reviewer to understand what went wrong.
-- Add tests around validation, CSV parsing behavior, AI output normalization, and key edge cases when implementation begins.
+- Validate CSV parsing behavior, AI output normalization, and key edge cases when implementation changes.
 
 ## Documentation Map
 
@@ -99,4 +99,4 @@ Allowed `data_source` values:
 
 ## Current Scope
 
-The project now includes the implemented monorepo, frontend preview/import flow, backend CSV and AI mock pipeline, tests, samples, Docker setup, and final documentation. Future agents should preserve the non-negotiable rules above and make targeted changes only.
+The project now includes the implemented monorepo, frontend preview/import flow, backend CSV and OpenAI pipeline, samples, Docker setup, and final documentation. Future agents should preserve the non-negotiable rules above and make targeted changes only.

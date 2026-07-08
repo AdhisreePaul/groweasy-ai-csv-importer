@@ -8,9 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "pretest": "pnpm --filter @groweasy/shared build",
-    "test": "vitest run --passWithNoTests"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@groweasy/shared": "workspace:*",

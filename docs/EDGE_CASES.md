@@ -65,7 +65,7 @@
 
 All sample files use fake names, fake emails, and fake phone numbers. They are intentionally small enough for manual demo testing while still covering the assignment's messy import formats.
 
-| File | Format simulated | Edge cases included | Expected behavior in mock mode |
+| File | Format simulated | Edge cases included | Expected behavior |
 | --- | --- | --- | --- |
 | `samples/facebook-leads.csv` | Facebook Lead Export | Facebook-style IDs, ad names, project source, ambiguous status, multiple emails and phones, skipped no-contact row | Import the contactable Facebook rows, infer `meridian_tower` or `eden_park`, preserve extra contacts in `crm_note`, skip the no-contact row. |
 | `samples/google-ads-leads.csv` | Google Ads lead export | Click ID, campaign names, property interest, ambiguous stage, multiple contact values, skipped form-extension row | Import rows with email or mobile, map converted row to `SALE_DONE`, map no-answer text to `DID_NOT_CONNECT` where present, skip the row without contact details. |

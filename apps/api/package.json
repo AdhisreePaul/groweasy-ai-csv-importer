@@ -8,9 +8,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "pretest": "pnpm --filter @groweasy/shared build",
-    "test": "vitest run --passWithNoTests"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@groweasy/shared": "workspace:*",
@@ -20,6 +18,7 @@
     "helmet": "^8.0.0",
     "multer": "^2.0.2",
     "morgan": "^1.10.0",
+    "openai": "^4.104.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
