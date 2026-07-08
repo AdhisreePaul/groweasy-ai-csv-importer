@@ -44,7 +44,10 @@ body {
   margin: 0;
   background: rgb(var(--color-canvas));
   color: rgb(var(--color-ink));
+  font-family: var(--font-app), Manrope, "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 * {

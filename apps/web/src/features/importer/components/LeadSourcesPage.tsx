@@ -1,15 +1,4 @@
-import {
-  Copy,
-  Download,
-  Link,
-  Megaphone,
-  MessageCircle,
-  PhoneCall,
-  Plus,
-  Search,
-  Upload,
-  UserPlus
-} from "lucide-react";
+import { Copy, Download, Plus, Upload, UserPlus } from "lucide-react";
 import type { ImportApiResponse } from "../lib/importApi";
 import { Button } from "./Button";
 import { Card } from "./Card";
@@ -25,30 +14,6 @@ interface LeadSourcesPageProps {
   onResetImport: () => void;
 }
 
-const sourceCards = [
-  {
-    title: "Google Ads",
-    status: "Not Connected",
-    detail: "Inactive",
-    icon: Megaphone,
-    accent: "text-blue-600 bg-blue-50"
-  },
-  {
-    title: "WhatsApp",
-    status: "Connected",
-    detail: "2 Numbers",
-    icon: MessageCircle,
-    accent: "text-emerald-600 bg-emerald-50"
-  },
-  {
-    title: "Telephony",
-    status: "Connected",
-    detail: "2 Numbers",
-    icon: PhoneCall,
-    accent: "text-[#0F766E] bg-[#DDF5F1]"
-  }
-];
-
 export function LeadSourcesPage({
   importResult,
   onCopyJson,
@@ -57,87 +22,76 @@ export function LeadSourcesPage({
   onResetImport
 }: LeadSourcesPageProps) {
   return (
-    <div className="min-h-screen" id="lead-sources">
-      <header className="border-b border-[#E5E7EB] bg-white px-5 py-6 sm:px-8 lg:px-11">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-normal text-[#111827]">
-              Lead Sources
-            </h1>
-            <p className="mt-2 text-base font-medium text-[#6B7280]">
-              Connect, manage, and control all your lead channels from one
-              dashboard.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="flex min-h-11 items-center rounded-lg border border-[#E5E7EB] bg-white px-3 text-[#6B7280]">
-              <Search aria-hidden="true" className="h-4 w-4" />
-              <span className="ml-2 text-sm">Search lead sources</span>
-            </div>
-            <Button
-              icon={<Upload aria-hidden="true" className="h-4 w-4" />}
-              onClick={onOpenImport}
-              variant="primary"
-            >
-              Upload File
-            </Button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-white" id="lead-sources">
+      <header className="border-b border-[#ECEFF3] bg-white px-[24px] py-[17px] sm:px-[40px]">
+        <h1 className="text-[24px] font-extrabold leading-[29px] tracking-[-0.02em] text-[#0F172A]">
+          Lead Sources
+        </h1>
+        <p className="mt-[4px] text-[14px] font-normal leading-[21px] tracking-[-0.005em] text-[#4F5665]">
+          Connect, manage, and control all your lead channels from one
+          dashboard.
+        </p>
       </header>
 
-      <div className="space-y-8 px-5 py-6 sm:px-8 lg:px-11">
+      <div className="mx-auto w-full max-w-[1018px] px-4 pb-[28px] pt-[28px] sm:px-0 lg:mx-0 lg:ml-[74px]">
         <section
           aria-label="Lead source actions"
-          className="grid gap-4 xl:grid-cols-2"
+          className="grid gap-[17px] md:grid-cols-2"
         >
           <button
-            className="group rounded-lg border border-dashed border-[#D1D5DB] bg-white p-6 text-left transition hover:border-[#0F766E] hover:bg-[#F8FCFB] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+            className="h-[101px] rounded-[12px] border border-dashed border-[#CFE4E1] bg-white px-[26px] text-left transition hover:border-[#216B62] hover:bg-[#FBFEFD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#216B62]"
             onClick={onOpenImport}
             type="button"
           >
-            <div className="flex items-center gap-5">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#DDF5F1] text-[#0F766E]">
-                <Upload aria-hidden="true" className="h-7 w-7" />
+            <div className="flex items-center gap-[19px]">
+              <span className="flex h-[47px] w-[47px] shrink-0 items-center justify-center rounded-full bg-[#E7F5F3] text-[#216B62]">
+                <Upload aria-hidden="true" className="h-[22px] w-[22px]" />
               </span>
               <span>
-                <span className="block text-xl font-bold text-[#111827]">
+                <span className="block text-[18px] font-extrabold leading-[22px] tracking-[-0.015em] text-[#0F172A]">
                   Add Leads via CSV
                 </span>
-                <span className="mt-1 block text-sm font-medium text-[#6B7280]">
+                <span className="mt-[4px] block text-[14px] font-medium leading-[20px] tracking-[-0.005em] text-[#4F5665]">
                   Bulk import leads from a file
                 </span>
               </span>
             </div>
           </button>
 
-          <Card className="border-dashed p-6">
-            <div className="flex items-center gap-5">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#DDF5F1] text-[#0F766E]">
-                <UserPlus aria-hidden="true" className="h-7 w-7" />
+          <button
+            className="h-[101px] rounded-[12px] border border-dashed border-[#CFE4E1] bg-white px-[26px] text-left transition hover:border-[#216B62] hover:bg-[#FBFEFD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#216B62]"
+            type="button"
+          >
+            <div className="flex items-center gap-[19px]">
+              <span className="flex h-[47px] w-[47px] shrink-0 items-center justify-center rounded-full bg-[#E7F5F3] text-[#216B62]">
+                <UserPlus aria-hidden="true" className="h-[22px] w-[22px]" />
               </span>
-              <div>
-                <h2 className="text-xl font-bold text-[#111827]">
+              <span>
+                <span className="block text-[18px] font-extrabold leading-[22px] tracking-[-0.015em] text-[#0F172A]">
                   Add Single Lead
-                </h2>
-                <p className="mt-1 text-sm font-medium text-[#6B7280]">
+                </span>
+                <span className="mt-[4px] block text-[14px] font-medium leading-[20px] tracking-[-0.005em] text-[#4F5665]">
                   Manually add a new lead
-                </p>
-              </div>
+                </span>
+              </span>
             </div>
-          </Card>
+          </button>
         </section>
 
         {importResult ? (
-          <section aria-labelledby="manage-leads-heading" className="space-y-5">
+          <section
+            aria-labelledby="manage-leads-heading"
+            className="mt-[28px] space-y-5"
+          >
             <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div>
                 <h2
-                  className="text-2xl font-bold text-[#111827]"
+                  className="text-[21px] font-extrabold text-[#0F172A]"
                   id="manage-leads-heading"
                 >
                   Manage Your Leads
                 </h2>
-                <p className="mt-1 text-sm font-medium text-[#6B7280]">
+                <p className="mt-1 text-[13px] font-medium text-[#667085]">
                   Review imported CRM records and skipped rows from the latest
                   CSV run.
                 </p>
@@ -168,96 +122,31 @@ export function LeadSourcesPage({
 
             <ImportSummaryCards summary={importResult.summary} />
 
-            <Card className="p-5">
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-[#111827]">
-                    Imported Records
-                  </h3>
-                  <p className="mt-1 text-sm text-[#6B7280]">
-                    Exact GrowEasy CRM fields returned by the backend.
-                  </p>
-                </div>
+            <Card className="p-5 shadow-none">
+              <div className="mb-4">
+                <h3 className="text-[16px] font-extrabold text-[#0F172A]">
+                  Imported Records
+                </h3>
+                <p className="mt-1 text-[13px] text-[#667085]">
+                  Exact GrowEasy CRM fields returned by the backend.
+                </p>
               </div>
               <ImportedRecordsTable records={importResult.importedRecords} />
             </Card>
 
-            <Card className="p-5">
+            <Card className="p-5 shadow-none">
               <div className="mb-4">
-                <h3 className="text-lg font-bold text-[#111827]">
+                <h3 className="text-[16px] font-extrabold text-[#0F172A]">
                   Skipped Records
                 </h3>
-                <p className="mt-1 text-sm text-[#6B7280]">
-                  Rows without usable contact info or with validation issues
-                  stay visible for review.
+                <p className="mt-1 text-[13px] text-[#667085]">
+                  Rows without usable contact info stay visible for review.
                 </p>
               </div>
               <SkippedRecordsTable records={importResult.skippedRecords} />
             </Card>
           </section>
-        ) : (
-          <section aria-labelledby="active-sources-heading">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <div>
-                <h2
-                  className="text-2xl font-bold text-[#111827]"
-                  id="active-sources-heading"
-                >
-                  Active Lead Channels
-                </h2>
-                <p className="mt-1 text-sm font-medium text-[#6B7280]">
-                  Import a CSV to turn offline sheets into CRM-ready leads.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-4 xl:grid-cols-3">
-              {sourceCards.map((source) => {
-                const Icon = source.icon;
-                const isConnected = source.status === "Connected";
-
-                return (
-                  <Card className="p-5" key={source.title}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <span
-                          className={`flex h-14 w-14 items-center justify-center rounded-lg ${source.accent}`}
-                        >
-                          <Icon aria-hidden="true" className="h-7 w-7" />
-                        </span>
-                        <div>
-                          <h3 className="text-xl font-bold text-[#111827]">
-                            {source.title}
-                          </h3>
-                          <p
-                            className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-bold ${
-                              isConnected
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-[#F3F4F6] text-[#374151]"
-                            }`}
-                          >
-                            {source.status}
-                          </p>
-                          <span className="ml-2 text-sm font-semibold text-[#6B7280]">
-                            {source.detail}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-bold text-[#111827] transition hover:bg-[#F9FAFB]"
-                      type="button"
-                    >
-                      <Link aria-hidden="true" className="h-4 w-4" />
-                      Connect
-                    </button>
-                  </Card>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        ) : null}
       </div>
     </div>
   );
