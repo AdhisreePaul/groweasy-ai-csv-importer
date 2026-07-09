@@ -27,14 +27,8 @@ export function RawPreviewTable({ preview }: RawPreviewTableProps) {
     }
 
     const visibleCount = Math.ceil(VIEWPORT_HEIGHT_PX / ROW_HEIGHT_PX);
-    const startIndex = Math.max(
-      0,
-      Math.floor(scrollTop / ROW_HEIGHT_PX) - OVERSCAN_ROWS
-    );
-    const endIndex = Math.min(
-      preview.rows.length,
-      startIndex + visibleCount + OVERSCAN_ROWS * 2
-    );
+    const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT_PX) - OVERSCAN_ROWS);
+    const endIndex = Math.min(preview.rows.length, startIndex + visibleCount + OVERSCAN_ROWS * 2);
 
     return {
       afterHeight: Math.max(0, (preview.rows.length - endIndex) * ROW_HEIGHT_PX),
@@ -58,10 +52,7 @@ export function RawPreviewTable({ preview }: RawPreviewTableProps) {
         <div>
           <div className="flex items-center gap-2">
             <Eye aria-hidden="true" className="h-5 w-5 text-leaf" />
-            <h2
-              className="text-base font-semibold text-ink"
-              id="raw-preview-heading"
-            >
+            <h2 className="text-base font-semibold text-ink" id="raw-preview-heading">
               Raw CSV preview
             </h2>
           </div>
@@ -111,11 +102,7 @@ export function RawPreviewTable({ preview }: RawPreviewTableProps) {
             ) : null}
 
             {virtualRows.rows.map((row) => (
-              <tr
-                className="even:bg-soft/60"
-                key={row.rowNumber}
-                style={{ height: ROW_HEIGHT_PX }}
-              >
+              <tr className="even:bg-soft/60" key={row.rowNumber} style={{ height: ROW_HEIGHT_PX }}>
                 <th
                   className="sticky left-0 z-[1] border-b border-r border-line bg-white px-3 py-3 text-xs font-semibold text-muted"
                   scope="row"
@@ -156,9 +143,8 @@ export function RawPreviewTable({ preview }: RawPreviewTableProps) {
           Virtualized preview is rendering rows{" "}
           {Math.min(virtualRows.startIndex + 1, preview.totalRows).toLocaleString()}
           {"-"}
-          {virtualRows.endIndex.toLocaleString()} of{" "}
-          {preview.totalRows.toLocaleString()}. The full CSV file is still kept
-          for Confirm Import.
+          {virtualRows.endIndex.toLocaleString()} of {preview.totalRows.toLocaleString()}. The full
+          CSV file is still kept for Confirm Import.
         </p>
       ) : null}
     </section>

@@ -4,9 +4,7 @@ import { Card } from "./Card";
 
 export function ImportSummaryCards({ summary }: { summary: ImportSummary }) {
   const successRate =
-    summary.totalRows === 0
-      ? 0
-      : Math.round((summary.totalImported / summary.totalRows) * 100);
+    summary.totalRows === 0 ? 0 : Math.round((summary.totalImported / summary.totalRows) * 100);
 
   const cards = [
     {
@@ -47,9 +45,7 @@ export function ImportSummaryCards({ summary }: { summary: ImportSummary }) {
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
                   {card.label}
                 </p>
-                <p className="mt-2 text-2xl font-bold text-[#111827]">
-                  {card.value}
-                </p>
+                <p className="mt-2 text-2xl font-bold text-[#111827]">{card.value}</p>
               </div>
               <span
                 className={`flex h-10 w-10 items-center justify-center rounded-lg ${card.tone}`}

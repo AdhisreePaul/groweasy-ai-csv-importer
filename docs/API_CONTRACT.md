@@ -2,7 +2,10 @@
 
 ## Overview
 
-The Node/Express backend exposes an import endpoint that receives a CSV only after the user clicks **Confirm Import** in the Next.js frontend. The endpoint parses the file, sends rows to AI in batches, validates normalized CRM leads, skips invalid records, and returns structured JSON.
+The Node/Express backend exposes an import endpoint that receives a CSV only
+after the user clicks **Confirm Import** in the Next.js frontend. The endpoint
+parses the file, sends rows to AI in batches, validates normalized CRM leads,
+skips invalid records, and returns structured JSON.
 
 The preview step is frontend-only and must not call this endpoint unless the user confirms import.
 
@@ -16,23 +19,17 @@ POST /api/import/csv
 
 Use `multipart/form-data`.
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| `file` | CSV file | Yes | The original CSV file selected by the user. |
-| `data_source` | string | No | Optional default source to apply when AI cannot infer a valid value. Must be one of the allowed `data_source` values if provided. |
+| Field         | Type     | Required | Description                                                                                                                       |
+| ------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `file`        | CSV file | Yes      | The original CSV file selected by the user.                                                                                       |
+| `data_source` | string   | No       | Optional default source to apply when AI cannot infer a valid value. Must be one of the allowed `data_source` values if provided. |
 
 ## Allowed Request Values
 
 Allowed `data_source` values:
 
 ```json
-[
-  "leads_on_demand",
-  "meridian_tower",
-  "eden_park",
-  "varah_swamy",
-  "sarjapur_plots"
-]
+["leads_on_demand", "meridian_tower", "eden_park", "varah_swamy", "sarjapur_plots"]
 ```
 
 ## Success Response
@@ -103,48 +100,37 @@ Canonical response keys:
 
 Every object in `importedRecords` must contain these fields:
 
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `source_row` | number | Yes | Original CSV row number, counting the header as row 1. |
-| `created_at` | string | Yes | JavaScript Date-compatible value when present; empty string when unknown. |
-| `name` | string | Yes | Empty string allowed if unknown. |
-| `email` | string | Yes | First valid email, or empty string if mobile exists. |
-| `country_code` | string | Yes | Include leading `+` when known, otherwise empty string. |
-| `mobile_without_country_code` | string | Yes | First mobile number without country code, or empty string if email exists. |
-| `company` | string | Yes | Empty string allowed if unknown. |
-| `city` | string | Yes | Empty string allowed if unknown. |
-| `state` | string | Yes | Empty string allowed if unknown. |
-| `country` | string | Yes | Empty string allowed if unknown. |
-| `lead_owner` | string | Yes | Empty string when absent. |
-| `crm_status` | string | Yes | Must be an allowed status. |
-| `crm_note` | string | Yes | Include extra emails, extra mobiles, uncertainty, and useful context. |
-| `data_source` | string | Yes | Must be an allowed source or empty string when unknown. |
-| `possession_time` | string | Yes | Empty string allowed if unknown. |
-| `description` | string | Yes | Human-readable lead context. |
+| Field                         | Type   | Required | Notes                                                                      |
+| ----------------------------- | ------ | -------- | -------------------------------------------------------------------------- |
+| `source_row`                  | number | Yes      | Original CSV row number, counting the header as row 1.                     |
+| `created_at`                  | string | Yes      | JavaScript Date-compatible value when present; empty string when unknown.  |
+| `name`                        | string | Yes      | Empty string allowed if unknown.                                           |
+| `email`                       | string | Yes      | First valid email, or empty string if mobile exists.                       |
+| `country_code`                | string | Yes      | Include leading `+` when known, otherwise empty string.                    |
+| `mobile_without_country_code` | string | Yes      | First mobile number without country code, or empty string if email exists. |
+| `company`                     | string | Yes      | Empty string allowed if unknown.                                           |
+| `city`                        | string | Yes      | Empty string allowed if unknown.                                           |
+| `state`                       | string | Yes      | Empty string allowed if unknown.                                           |
+| `country`                     | string | Yes      | Empty string allowed if unknown.                                           |
+| `lead_owner`                  | string | Yes      | Empty string when absent.                                                  |
+| `crm_status`                  | string | Yes      | Must be an allowed status.                                                 |
+| `crm_note`                    | string | Yes      | Include extra emails, extra mobiles, uncertainty, and useful context.      |
+| `data_source`                 | string | Yes      | Must be an allowed source or empty string when unknown.                    |
+| `possession_time`             | string | Yes      | Empty string allowed if unknown.                                           |
+| `description`                 | string | Yes      | Human-readable lead context.                                               |
 
 ## Allowed Lead Values
 
 Allowed `crm_status` values:
 
 ```json
-[
-  "GOOD_LEAD_FOLLOW_UP",
-  "DID_NOT_CONNECT",
-  "BAD_LEAD",
-  "SALE_DONE"
-]
+["GOOD_LEAD_FOLLOW_UP", "DID_NOT_CONNECT", "BAD_LEAD", "SALE_DONE"]
 ```
 
 Allowed `data_source` values:
 
 ```json
-[
-  "leads_on_demand",
-  "meridian_tower",
-  "eden_park",
-  "varah_swamy",
-  "sarjapur_plots"
-]
+["leads_on_demand", "meridian_tower", "eden_park", "varah_swamy", "sarjapur_plots"]
 ```
 
 `data_source` may also be `""` when the CSV does not confidently match one of these values and no valid request default is provided.

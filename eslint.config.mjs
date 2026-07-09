@@ -4,13 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [
-      "**/.next/**",
-      "**/dist/**",
-      "**/coverage/**",
-      "**/node_modules/**",
-      "next-env.d.ts"
-    ]
+    ignores: ["**/.next/**", "**/dist/**", "**/coverage/**", "**/node_modules/**", "next-env.d.ts"]
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -26,8 +20,8 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_"
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_"
         }
       ]
     }

@@ -67,7 +67,12 @@ export function ImportCsvModal({
           </div>
           <button
             aria-label="Close import modal"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#6B7280] transition hover:bg-[#F3F4F6] hover:text-[#111827] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E]"
+            className={[
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+              "text-[#6B7280] transition hover:bg-[#F3F4F6] hover:text-[#111827]",
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+              "focus-visible:outline-[#0F766E]"
+            ].join(" ")}
             onClick={onCancel}
             type="button"
           >
@@ -78,11 +83,7 @@ export function ImportCsvModal({
         <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-5 sm:px-8">
           {selectedFile ? (
             <>
-              <UploadedFilePreview
-                file={selectedFile}
-                onRemove={onRemoveFile}
-                preview={preview}
-              />
+              <UploadedFilePreview file={selectedFile} onRemove={onRemoveFile} preview={preview} />
               {error ? (
                 <p className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
                   {error}
@@ -90,10 +91,7 @@ export function ImportCsvModal({
               ) : null}
               {!error && !preview && isParsing ? (
                 <div className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-4 text-sm font-semibold text-[#374151]">
-                  <Loader2
-                    aria-hidden="true"
-                    className="h-5 w-5 animate-spin text-[#0F766E]"
-                  />
+                  <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-[#0F766E]" />
                   Preparing raw CSV preview...
                 </div>
               ) : null}
@@ -117,11 +115,7 @@ export function ImportCsvModal({
         </div>
 
         <div className="grid gap-4 border-t border-[#F3F4F6] px-6 py-5 sm:grid-cols-2 sm:px-8">
-          <Button
-            className="min-h-12 text-base"
-            disabled={isImporting}
-            onClick={onCancel}
-          >
+          <Button className="min-h-12 text-base" disabled={isImporting} onClick={onCancel}>
             Cancel
           </Button>
           <Button

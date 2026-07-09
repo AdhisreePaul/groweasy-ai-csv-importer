@@ -8,6 +8,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     const isFileSizeError = err.code === "LIMIT_FILE_SIZE";
 
     res.status(400).json({
+      success: false,
       error: {
         code: isFileSizeError ? "FILE_TOO_LARGE" : "INVALID_FILE",
         message: isFileSizeError
@@ -20,6 +21,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
+      success: false,
       error: {
         code: err.code,
         message: err.message
@@ -30,10 +32,10 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
   if (err instanceof ZodError) {
     res.status(400).json({
+      success: false,
       error: {
         code: "VALIDATION_FAILED",
-        message: "Request validation failed.",
-        details: err.flatten()
+        message: "Request validation failed."
       }
     });
     return;
@@ -42,6 +44,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   console.error(err);
 
   res.status(500).json({
+    success: false,
     error: {
       code: "UNKNOWN_ERROR",
       message: "An unexpected error occurred."

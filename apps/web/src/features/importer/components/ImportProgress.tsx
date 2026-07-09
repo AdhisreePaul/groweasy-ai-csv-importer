@@ -1,12 +1,7 @@
 import { AlertCircle, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "./Button";
 
-export type ImportProgressStep =
-  | "uploading"
-  | "parsing"
-  | "mapping"
-  | "validating"
-  | "complete";
+export type ImportProgressStep = "uploading" | "parsing" | "mapping" | "validating" | "complete";
 
 const progressSteps: Array<{ key: ImportProgressStep; label: string }> = [
   { key: "uploading", label: "Uploading" },
@@ -40,15 +35,9 @@ export function ImportProgress({
           {error ? (
             <AlertCircle aria-hidden="true" className="h-5 w-5 text-red-600" />
           ) : step === "complete" ? (
-            <CheckCircle2
-              aria-hidden="true"
-              className="h-5 w-5 text-emerald-600"
-            />
+            <CheckCircle2 aria-hidden="true" className="h-5 w-5 text-emerald-600" />
           ) : (
-            <Loader2
-              aria-hidden="true"
-              className="h-5 w-5 animate-spin text-[#0F766E]"
-            />
+            <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-[#0F766E]" />
           )}
           <p className="text-sm font-bold text-[#111827]">
             {error

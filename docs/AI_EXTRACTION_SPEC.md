@@ -2,7 +2,9 @@
 
 ## Purpose
 
-The AI model converts messy CSV lead rows into the strict GrowEasy CRM lead format. AI extraction happens only after the user clicks **Confirm Import** in the Next.js frontend and the Node/Express backend receives the CSV.
+The AI model converts messy CSV lead rows into the strict GrowEasy CRM lead
+format. AI extraction happens only after the user clicks **Confirm Import** in
+the Next.js frontend and the Node/Express backend receives the CSV.
 
 The AI must not be called during frontend CSV preview.
 
@@ -151,16 +153,16 @@ Allowed `data_source` values:
 
 ### Messy Column Examples
 
-| Messy CSV column | Likely CRM target |
-| --- | --- |
-| `Client Full Name`, `Buyer Name`, `Customer`, `Lead` | `name` |
-| `Phone / WhatsApp`, `Contact Nos`, `Mobile 1`, `Alt Number` | `country_code`, `mobile_without_country_code`, `crm_note` |
-| `Email IDs`, `mail`, `E-mail`, `Secondary Email` | `email`, `crm_note` |
-| `Project Interested`, `Property`, `Campaign`, `Source Project` | `data_source`, `description` |
-| `Current Location`, `Place`, `Address`, `City State` | `city`, `state`, `country` |
-| `Sales Person`, `Assigned To`, `Owner` | `lead_owner` |
-| `Remarks`, `Comment`, `Notes`, `Requirement` | `description`, `crm_note`, `crm_status` |
-| `Possession`, `Move-in`, `Timeline` | `possession_time` |
+| Messy CSV column                                               | Likely CRM target                                         |
+| -------------------------------------------------------------- | --------------------------------------------------------- |
+| `Client Full Name`, `Buyer Name`, `Customer`, `Lead`           | `name`                                                    |
+| `Phone / WhatsApp`, `Contact Nos`, `Mobile 1`, `Alt Number`    | `country_code`, `mobile_without_country_code`, `crm_note` |
+| `Email IDs`, `mail`, `E-mail`, `Secondary Email`               | `email`, `crm_note`                                       |
+| `Project Interested`, `Property`, `Campaign`, `Source Project` | `data_source`, `description`                              |
+| `Current Location`, `Place`, `Address`, `City State`           | `city`, `state`, `country`                                |
+| `Sales Person`, `Assigned To`, `Owner`                         | `lead_owner`                                              |
+| `Remarks`, `Comment`, `Notes`, `Requirement`                   | `description`, `crm_note`, `crm_status`                   |
+| `Possession`, `Move-in`, `Timeline`                            | `possession_time`                                         |
 
 ### Notes And Description Rules
 
@@ -208,7 +210,10 @@ The production prompt should instruct the model to:
 
 ## Deterministic Safeguards
 
-AI should help with messy mapping, but deterministic code should enforce final correctness. The backend should independently detect obvious emails and phone numbers where possible, compare them with AI output, and fix or reject mismatches according to the business rules.
+AI should help with messy mapping, but deterministic code should enforce final
+correctness. The backend should independently detect obvious emails and phone
+numbers where possible, compare them with AI output, and fix or reject
+mismatches according to the business rules.
 
 ## End-To-End Extraction Example
 

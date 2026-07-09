@@ -7,10 +7,12 @@ export const allowedDataSourceSchema = z.enum(DATA_SOURCES);
 
 export const dataSourceSchema = z.union([allowedDataSourceSchema, z.literal("")]);
 
-export const dateCompatibleStringSchema = z.string().refine(
-  (value) => value === "" || !Number.isNaN(new Date(value).getTime()),
-  "Must be empty or JavaScript Date-compatible"
-);
+export const dateCompatibleStringSchema = z
+  .string()
+  .refine(
+    (value) => value === "" || !Number.isNaN(new Date(value).getTime()),
+    "Must be empty or JavaScript Date-compatible"
+  );
 
 export const crmLeadSchema = z.object({
   created_at: dateCompatibleStringSchema,
@@ -54,44 +56,46 @@ export const importSummarySchema = z.object({
   error_count: z.number().int().nonnegative()
 });
 
-export const importResponseSchema = z.object({
-  import_id: z.string(),
-  total_imported: z.number().int().nonnegative(),
-  total_skipped: z.number().int().nonnegative(),
-  summary: importSummarySchema,
-  imported_records: z.array(importedRecordSchema),
-  skipped_records: z.array(skippedRecordSchema),
-  errors: z.array(importErrorSchema)
-}).superRefine((value, context) => {
-  if (value.total_imported !== value.imported_records.length) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "total_imported must match imported_records length",
-      path: ["total_imported"]
-    });
-  }
+export const importResponseSchema = z
+  .object({
+    import_id: z.string(),
+    total_imported: z.number().int().nonnegative(),
+    total_skipped: z.number().int().nonnegative(),
+    summary: importSummarySchema,
+    imported_records: z.array(importedRecordSchema),
+    skipped_records: z.array(skippedRecordSchema),
+    errors: z.array(importErrorSchema)
+  })
+  .superRefine((value, context) => {
+    if (value.total_imported !== value.imported_records.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "total_imported must match imported_records length",
+        path: ["total_imported"]
+      });
+    }
 
-  if (value.total_skipped !== value.skipped_records.length) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "total_skipped must match skipped_records length",
-      path: ["total_skipped"]
-    });
-  }
+    if (value.total_skipped !== value.skipped_records.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "total_skipped must match skipped_records length",
+        path: ["total_skipped"]
+      });
+    }
 
-  if (value.summary.imported_count !== value.imported_records.length) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "summary.imported_count must match imported_records length",
-      path: ["summary", "imported_count"]
-    });
-  }
+    if (value.summary.imported_count !== value.imported_records.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "summary.imported_count must match imported_records length",
+        path: ["summary", "imported_count"]
+      });
+    }
 
-  if (value.summary.skipped_count !== value.skipped_records.length) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "summary.skipped_count must match skipped_records length",
-      path: ["summary", "skipped_count"]
-    });
-  }
-});
+    if (value.summary.skipped_count !== value.skipped_records.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "summary.skipped_count must match skipped_records length",
+        path: ["summary", "skipped_count"]
+      });
+    }
+  });

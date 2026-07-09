@@ -7,12 +7,7 @@ interface WorkflowStepProps {
   status: string;
 }
 
-export function WorkflowStep({
-  title,
-  description,
-  icon: Icon,
-  status
-}: WorkflowStepProps) {
+export function WorkflowStep({ title, description, icon: Icon, status }: WorkflowStepProps) {
   return (
     <article className="min-h-36 rounded-lg border border-line bg-soft p-4">
       <div className="flex items-start justify-between gap-3">

@@ -5,10 +5,7 @@ interface ImportHeaderProps {
   onToggleTheme: () => void;
 }
 
-export function ImportHeader({
-  isDarkMode,
-  onToggleTheme
-}: ImportHeaderProps) {
+export function ImportHeader({ isDarkMode, onToggleTheme }: ImportHeaderProps) {
   return (
     <header className="border-b border-line bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
@@ -17,12 +14,8 @@ export function ImportHeader({
             <DatabaseZap aria-hidden="true" className="h-5 w-5" />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-ink">
-              GrowEasy CRM
-            </p>
-            <p className="truncate text-xs text-muted">
-              Lead import workspace
-            </p>
+            <p className="truncate text-sm font-semibold text-ink">GrowEasy CRM</p>
+            <p className="truncate text-xs text-muted">Lead import workspace</p>
           </div>
         </div>
 

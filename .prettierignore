@@ -1,0 +1,14 @@
+node_modules
+.next
+dist
+coverage
+.turbo
+.pnpm-store
+
+.git
+.codex
+.agents
+dev-logs
+
+*.tsbuildinfo
+*.log

@@ -12,11 +12,7 @@ export function inferStatus(text: string): CrmStatus {
     return "SALE_DONE";
   }
 
-  if (
-    /\b(did not connect|could not connect|unreachable|not picking|no answer)\b/.test(
-      lowerText
-    )
-  ) {
+  if (/\b(did not connect|could not connect|unreachable|not picking|no answer)\b/.test(lowerText)) {
     return "DID_NOT_CONNECT";
   }
 
@@ -27,10 +23,7 @@ export function inferStatus(text: string): CrmStatus {
   return "GOOD_LEAD_FOLLOW_UP";
 }
 
-export function inferDataSource(
-  text: string,
-  defaultDataSource?: DataSource
-): DataSource {
+export function inferDataSource(text: string, defaultDataSource?: DataSource): DataSource {
   const lowerText = text.toLowerCase();
 
   if (lowerText.includes("meridian tower")) {
@@ -60,8 +53,6 @@ export function inferDataSource(
   return "";
 }
 
-function isAllowedDataSource(
-  value: DataSource | undefined
-): value is AllowedDataSource {
+function isAllowedDataSource(value: DataSource | undefined): value is AllowedDataSource {
   return DATA_SOURCES.includes(value as AllowedDataSource);
 }

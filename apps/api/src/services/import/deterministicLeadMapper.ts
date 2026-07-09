@@ -62,8 +62,7 @@ export function buildDeterministicRecordFromRaw(
     ]),
     email: contactDetails.primaryEmail,
     country_code: contactDetails.primaryPhone?.country_code ?? "",
-    mobile_without_country_code:
-      contactDetails.primaryPhone?.mobile_without_country_code ?? "",
+    mobile_without_country_code: contactDetails.primaryPhone?.mobile_without_country_code ?? "",
     company: findRawValue(rawRecord, [
       "company",
       "organization",
@@ -91,10 +90,7 @@ export function buildDeterministicRecordFromRaw(
   });
 }
 
-export function findRawValue(
-  record: Record<string, unknown>,
-  aliases: readonly string[]
-): string {
+export function findRawValue(record: Record<string, unknown>, aliases: readonly string[]): string {
   const normalizedAliases = aliases.map(normalizeHeaderKey);
 
   for (const [key, value] of Object.entries(record)) {
@@ -116,8 +112,7 @@ export function findRawValue(
       normalizedAliases.some(
         (alias) =>
           alias.length > 4 &&
-          (normalizedKey.startsWith(`${alias}_`) ||
-            normalizedKey.endsWith(`_${alias}`))
+          (normalizedKey.startsWith(`${alias}_`) || normalizedKey.endsWith(`_${alias}`))
       )
     ) {
       const cleaned = cleanCellValue(value);

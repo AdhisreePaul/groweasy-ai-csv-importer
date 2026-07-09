@@ -100,9 +100,9 @@ function parseCsvLines(text: string): ParsedCsvLine[] {
     const next = text[index + 1];
 
     if (inQuotes) {
-      if (char === "\"") {
-        if (next === "\"") {
-          field += "\"";
+      if (char === '"') {
+        if (next === '"') {
+          field += '"';
           index += 1;
         } else {
           inQuotes = false;
@@ -123,7 +123,7 @@ function parseCsvLines(text: string): ParsedCsvLine[] {
       continue;
     }
 
-    if (char === "\"" && field.length === 0) {
+    if (char === '"' && field.length === 0) {
       inQuotes = true;
       continue;
     }

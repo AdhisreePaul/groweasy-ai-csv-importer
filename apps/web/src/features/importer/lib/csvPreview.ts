@@ -46,9 +46,7 @@ export function parseCsvPreview(text: string): CsvPreview {
   const nonEmptyRows = parsedRows.filter((row) => hasAnyCellValue(row));
 
   if (nonEmptyRows.length === 0) {
-    throw new Error(
-      "This CSV is empty. Choose a file with headers and at least one row."
-    );
+    throw new Error("This CSV is empty. Choose a file with headers and at least one row.");
   }
 
   const headerIndex = parsedRows.findIndex((row) => hasAnyCellValue(row));
@@ -59,14 +57,9 @@ export function parseCsvPreview(text: string): CsvPreview {
   }
 
   const sourceRows = parsedRows.slice(headerIndex + 1);
-  const maxColumnCount = Math.max(
-    headers.length,
-    ...sourceRows.map((row) => row.length)
-  );
+  const maxColumnCount = Math.max(headers.length, ...sourceRows.map((row) => row.length));
   const normalizedHeaders = Array.from({ length: maxColumnCount }, (_, index) =>
-    headers[index] && headers[index].trim().length > 0
-      ? headers[index]
-      : `Column ${index + 1}`
+    headers[index] && headers[index].trim().length > 0 ? headers[index] : `Column ${index + 1}`
   );
 
   const rows = sourceRows.map((row, index) => ({
@@ -141,9 +134,7 @@ function parseCsvRows(text: string): string[][] {
   }
 
   if (insideQuotes) {
-    throw new Error(
-      "This CSV has an unfinished quoted value. Check the file and try again."
-    );
+    throw new Error("This CSV has an unfinished quoted value. Check the file and try again.");
   }
 
   row.push(cleanPreviewCell(cell));
@@ -153,7 +144,10 @@ function parseCsvRows(text: string): string[][] {
 }
 
 function cleanPreviewCell(value: string): string {
-  return value.replace(/\uFEFF/g, "").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/\uFEFF/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function hasAnyCellValue(row: string[]): boolean {

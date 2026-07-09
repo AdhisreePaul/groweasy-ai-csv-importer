@@ -109,11 +109,11 @@ export const FEW_SHOT_EXAMPLES = [
       rowIndex: 12,
       rawRecord: {
         "Full name": "Neha Iyer",
-        "Email": "neha@example.com",
+        Email: "neha@example.com",
         "Phone number": "+91 98765 11122",
-        "City": "Bengaluru",
+        City: "Bengaluru",
         "Ad name": "Eden Park FB Lead Form",
-        "Message": "Please call tomorrow"
+        Message: "Please call tomorrow"
       }
     },
     output: {
@@ -147,11 +147,11 @@ export const FEW_SHOT_EXAMPLES = [
       rawRecord: {
         "Buyer Name": "Ravi Kumar",
         "Contact Nos": "+91-91234-56780, 93456 78901",
-        "mail": "ravi@example.com / ravi.alt@example.com",
+        mail: "ravi@example.com / ravi.alt@example.com",
         "Interested Project": "Eden Park",
-        "Place": "Chennai, Tamil Nadu",
-        "Owner": "Sneha",
-        "Comment": "Booked, wants possession by Dec"
+        Place: "Chennai, Tamil Nadu",
+        Owner: "Sneha",
+        Comment: "Booked, wants possession by Dec"
       }
     },
     output: {
@@ -169,8 +169,7 @@ export const FEW_SHOT_EXAMPLES = [
           country: "India",
           lead_owner: "Sneha",
           crm_status: "SALE_DONE",
-          crm_note:
-            "Additional emails: ravi.alt@example.com. Additional mobiles: 9345678901.",
+          crm_note: "Additional emails: ravi.alt@example.com. Additional mobiles: 9345678901.",
           data_source: "eden_park",
           possession_time: "Dec",
           description: "Booked, wants possession by Dec."
@@ -184,13 +183,13 @@ export const FEW_SHOT_EXAMPLES = [
     input: {
       rowIndex: 8,
       rawRecord: {
-        "Customer": "Ananya Rao",
+        Customer: "Ananya Rao",
         "WhatsApp/Mobile": "080-12345678, +91 90000 11122",
-        "mail": "ananya@example.com, ananya.office@example.com",
-        "Campaign": "Meridian Tower",
+        mail: "ananya@example.com, ananya.office@example.com",
+        Campaign: "Meridian Tower",
         "City State": "Hyderabad Telangana",
-        "Owner": "",
-        "Requirement": "Could not connect on first attempt, retry tomorrow"
+        Owner: "",
+        Requirement: "Could not connect on first attempt, retry tomorrow"
       }
     },
     output: {
@@ -223,9 +222,9 @@ export const FEW_SHOT_EXAMPLES = [
     input: {
       rowIndex: 31,
       rawRecord: {
-        "Lead": "Unknown Lead",
-        "Project": "Varah Swamy",
-        "Notes": "Asked for callback but gave no contact details"
+        Lead: "Unknown Lead",
+        Project: "Varah Swamy",
+        Notes: "Asked for callback but gave no contact details"
       }
     },
     output: {

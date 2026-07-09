@@ -7,7 +7,7 @@ try {
   const app = createApp(env);
 
   app.listen(env.PORT, () => {
-    console.log(`GrowEasy API listening on http://localhost:${env.PORT}`);
+    console.info(`GrowEasy API listening on http://localhost:${env.PORT}`);
   });
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);

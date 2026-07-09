@@ -15,11 +15,9 @@ export interface ExtractedContactDetails {
   unusedPhoneCandidates: string[];
 }
 
-const emailPattern =
-  /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 
-const phoneCandidatePattern =
-  /(?:\+?\d[\d\s().-]{5,}\d|\(\+?\d{1,4}\)\s*\d[\d\s().-]{4,}\d)/g;
+const phoneCandidatePattern = /(?:\+?\d[\d\s().-]{5,}\d|\(\+?\d{1,4}\)\s*\d[\d\s().-]{4,}\d)/g;
 
 export function extractEmails(text: unknown): string[] {
   const value = toText(text);
@@ -54,11 +52,7 @@ export function normalizeIndianPhone(phone: unknown): NormalizedPhone {
     };
   }
 
-  if (
-    digits.length === 12 &&
-    digits.startsWith("91") &&
-    isLikelyIndianMobile(digits.slice(2))
-  ) {
+  if (digits.length === 12 && digits.startsWith("91") && isLikelyIndianMobile(digits.slice(2))) {
     return {
       country_code: "+91",
       mobile_without_country_code: digits.slice(2),
@@ -66,11 +60,7 @@ export function normalizeIndianPhone(phone: unknown): NormalizedPhone {
     };
   }
 
-  if (
-    digits.length === 11 &&
-    digits.startsWith("0") &&
-    isLikelyIndianMobile(digits.slice(1))
-  ) {
+  if (digits.length === 11 && digits.startsWith("0") && isLikelyIndianMobile(digits.slice(1))) {
     return {
       country_code: "+91",
       mobile_without_country_code: digits.slice(1),
@@ -140,10 +130,7 @@ export function extractContactDetailsFromRecord(
   const countryCode = findFirstValueByHeader(record, countryCodeHeaderAliases);
   const obviousEmailText = findValuesByHeader(record, emailHeaderAliases).join(" ");
   const allText = Object.values(record).map(cleanCellValue).join(" ");
-  const emails = uniqueValues([
-    ...extractEmails(obviousEmailText),
-    ...extractEmails(allText)
-  ]);
+  const emails = uniqueValues([...extractEmails(obviousEmailText), ...extractEmails(allText)]);
   const obviousPhoneValues = findValuesByHeader(record, phoneHeaderAliases);
   const phoneCandidates = uniqueValues([
     ...obviousPhoneValues.flatMap(extractPhoneCandidates),
@@ -227,10 +214,7 @@ export function hasContactInfo(record: Record<string, unknown>): boolean {
   return Boolean(contactDetails.primaryEmail || contactDetails.primaryPhone);
 }
 
-function findValuesByHeader(
-  record: Record<string, unknown>,
-  aliases: readonly string[]
-): string[] {
+function findValuesByHeader(record: Record<string, unknown>, aliases: readonly string[]): string[] {
   const normalizedAliases = aliases.map(normalizeHeaderKey);
   const values: string[] = [];
 
@@ -258,10 +242,7 @@ function findFirstValueByHeader(
   return findValuesByHeader(record, aliases)[0] ?? "";
 }
 
-function matchesHeaderAlias(
-  normalizedHeader: string,
-  normalizedAliases: string[]
-): boolean {
+function matchesHeaderAlias(normalizedHeader: string, normalizedAliases: string[]): boolean {
   return normalizedAliases.some(
     (alias) =>
       normalizedHeader === alias ||
@@ -335,12 +316,7 @@ const phoneHeaderAliases = [
   "mobile_whatsapp"
 ] as const;
 
-const countryCodeHeaderAliases = [
-  "country_code",
-  "countrycode",
-  "dial_code",
-  "isd_code"
-] as const;
+const countryCodeHeaderAliases = ["country_code", "countrycode", "dial_code", "isd_code"] as const;
 
 function parseDateValue(value: string): Date | null {
   const isoDateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -364,9 +340,7 @@ function parseDateValue(value: string): Date | null {
       : null;
   }
 
-  const slashOrDashMatch = value.match(
-    /^(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})$/
-  );
+  const slashOrDashMatch = value.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})$/);
 
   if (!slashOrDashMatch) {
     const nativeDate = new Date(value);
@@ -404,12 +378,7 @@ function isValidDate(value: Date): boolean {
   return !Number.isNaN(value.getTime());
 }
 
-function isValidDateParts(
-  value: Date,
-  year: number,
-  month: number,
-  day: number
-): boolean {
+function isValidDateParts(value: Date, year: number, month: number, day: number): boolean {
   return (
     isValidDate(value) &&
     value.getUTCFullYear() === year &&

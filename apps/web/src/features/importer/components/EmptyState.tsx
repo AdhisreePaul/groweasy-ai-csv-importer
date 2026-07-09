@@ -6,12 +6,10 @@ export function EmptyState() {
       <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-white text-sky shadow-sm">
         <ClipboardList aria-hidden="true" className="h-5 w-5" />
       </div>
-      <h3 className="mt-4 text-sm font-semibold text-ink">
-        No import results yet
-      </h3>
+      <h3 className="mt-4 text-sm font-semibold text-ink">No import results yet</h3>
       <p className="mt-2 text-sm leading-6 text-muted">
-        Upload a CSV to preview rows. Confirmed imports will show mapped CRM
-        leads, skipped records, and batch totals here.
+        Upload a CSV to preview rows. Confirmed imports will show mapped CRM leads, skipped records,
+        and batch totals here.
       </p>
     </div>
   );

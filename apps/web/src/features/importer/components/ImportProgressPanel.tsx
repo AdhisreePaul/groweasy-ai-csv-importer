@@ -1,11 +1,6 @@
 import { AlertCircle, CheckCircle2, Loader2, RotateCcw } from "lucide-react";
 
-export type ImportProgressStep =
-  | "uploading"
-  | "parsing"
-  | "mapping"
-  | "validating"
-  | "complete";
+export type ImportProgressStep = "uploading" | "parsing" | "mapping" | "validating" | "complete";
 
 interface ImportProgressPanelProps {
   error: string | null;
@@ -49,8 +44,7 @@ export function ImportProgressPanel({
   onRetry
 }: ImportProgressPanelProps) {
   const activeIndex = steps.findIndex((item) => item.id === step);
-  const progressValue =
-    activeIndex < 0 ? 0 : Math.round(((activeIndex + 1) / steps.length) * 100);
+  const progressValue = activeIndex < 0 ? 0 : Math.round(((activeIndex + 1) / steps.length) * 100);
 
   return (
     <section
@@ -63,8 +57,8 @@ export function ImportProgressPanel({
             Import progress
           </h2>
           <p className="mt-1 text-sm leading-6 text-muted">
-            This starts only after Confirm Import. Preview remains available
-            while AI processing runs.
+            This starts only after Confirm Import. Preview remains available while AI processing
+            runs.
           </p>
         </div>
         {isImporting ? (
@@ -91,9 +85,7 @@ export function ImportProgressPanel({
           role="progressbar"
         >
           <div
-            className={`h-full rounded-full transition-all ${
-              error ? "w-full bg-rose" : "bg-leaf"
-            }`}
+            className={`h-full rounded-full transition-all ${error ? "w-full bg-rose" : "bg-leaf"}`}
             style={{ width: error ? "100%" : `${progressValue}%` }}
           />
         </div>
@@ -126,9 +118,7 @@ export function ImportProgressPanel({
               </div>
               <div>
                 <p className="text-sm font-semibold text-ink">{item.label}</p>
-                <p className="mt-1 text-sm leading-5 text-muted">
-                  {item.detail}
-                </p>
+                <p className="mt-1 text-sm leading-5 text-muted">{item.detail}</p>
               </div>
             </li>
           );
@@ -146,7 +136,12 @@ export function ImportProgressPanel({
             <p>{error}</p>
           </div>
           <button
-            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-rose/30 bg-white px-4 text-sm font-semibold text-rose transition hover:bg-rose/10 focus:outline-none focus:ring-2 focus:ring-rose focus:ring-offset-2"
+            className={[
+              "mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md",
+              "border border-rose/30 bg-white px-4 text-sm font-semibold text-rose",
+              "transition hover:bg-rose/10 focus:outline-none focus:ring-2",
+              "focus:ring-rose focus:ring-offset-2"
+            ].join(" ")}
             onClick={onRetry}
             type="button"
           >

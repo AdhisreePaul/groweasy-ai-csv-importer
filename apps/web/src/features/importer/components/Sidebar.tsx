@@ -35,6 +35,19 @@ const navGroups = [
   }
 ];
 
+const workspaceButtonClassName = [
+  "mt-[18px] flex h-[50px] w-full items-center gap-[10px] rounded-[14px]",
+  "border border-[#ECEFF3] bg-white px-[10px] text-left transition hover:bg-[#FAFAFA]",
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+  "focus-visible:outline-[#216B62]"
+].join(" ");
+
+const businessCenterClassName = [
+  "flex h-[40px] w-full items-center gap-[12px] rounded-[10px] px-[12px]",
+  "text-[14px] font-semibold tracking-[-0.005em] text-[#3E4652] transition",
+  "hover:bg-[#F6F7F8]"
+].join(" ");
+
 export function Sidebar() {
   return (
     <>
@@ -43,9 +56,7 @@ export function Sidebar() {
           <div className="flex items-center gap-3">
             <LogoMark />
             <div>
-              <p className="text-[18px] font-extrabold leading-none text-[#0F172A]">
-                GrowEasy
-              </p>
+              <p className="text-[18px] font-extrabold leading-none text-[#0F172A]">GrowEasy</p>
               <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#9CA3AF]">
                 Lead Sources
               </p>
@@ -59,25 +70,25 @@ export function Sidebar() {
           aria-label="GrowEasy mobile navigation"
           className="flex gap-2 overflow-x-auto px-4 pb-4"
         >
-          {navGroups.flatMap((group) => group.items).map((item) => {
-            const Icon = item.icon;
+          {navGroups
+            .flatMap((group) => group.items)
+            .map((item) => {
+              const Icon = item.icon;
 
-            return (
-              <a
-                aria-current={item.active ? "page" : undefined}
-                className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-[13px] font-bold ${
-                  item.active
-                    ? "bg-[#DDF5F1] text-[#216B62]"
-                    : "bg-[#F5F6F7] text-[#3F4652]"
-                }`}
-                href="#lead-sources"
-                key={item.label}
-              >
-                <Icon aria-hidden="true" className="h-4 w-4" />
-                {item.label}
-              </a>
-            );
-          })}
+              return (
+                <a
+                  aria-current={item.active ? "page" : undefined}
+                  className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-[13px] font-bold ${
+                    item.active ? "bg-[#DDF5F1] text-[#216B62]" : "bg-[#F5F6F7] text-[#3F4652]"
+                  }`}
+                  href="#lead-sources"
+                  key={item.label}
+                >
+                  <Icon aria-hidden="true" className="h-4 w-4" />
+                  {item.label}
+                </a>
+              );
+            })}
         </nav>
       </header>
 
@@ -91,10 +102,7 @@ export function Sidebar() {
               </span>
             </div>
 
-            <button
-              className="mt-[18px] flex h-[50px] w-full items-center gap-[10px] rounded-[14px] border border-[#ECEFF3] bg-white px-[10px] text-left transition hover:bg-[#FAFAFA] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#216B62]"
-              type="button"
-            >
+            <button className={workspaceButtonClassName} type="button">
               <span className="h-[34px] w-[34px] shrink-0 rounded-[8px] bg-[#EFF2F1]" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[14px] font-bold leading-[17px] text-[#1F2937]">
@@ -104,10 +112,7 @@ export function Sidebar() {
                   Owner
                 </span>
               </span>
-              <ChevronRight
-                aria-hidden="true"
-                className="h-[15px] w-[15px] text-[#B5BDC8]"
-              />
+              <ChevronRight aria-hidden="true" className="h-[15px] w-[15px] text-[#B5BDC8]" />
             </button>
           </div>
 
@@ -146,10 +151,7 @@ export function Sidebar() {
           </nav>
 
           <div className="border-t border-[#ECEFF3] px-[14px] py-[20px]">
-            <button
-              className="flex h-[40px] w-full items-center gap-[12px] rounded-[10px] px-[12px] text-[14px] font-semibold tracking-[-0.005em] text-[#3E4652] transition hover:bg-[#F6F7F8]"
-              type="button"
-            >
+            <button className={businessCenterClassName} type="button">
               <BriefcaseBusiness aria-hidden="true" className="h-[17px] w-[17px]" />
               Business Center
             </button>

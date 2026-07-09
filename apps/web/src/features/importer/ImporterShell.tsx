@@ -5,16 +5,8 @@ import { AppShell } from "./components/AppShell";
 import { ImportCsvModal } from "./components/ImportCsvModal";
 import type { ImportProgressStep } from "./components/ImportProgress";
 import { LeadSourcesPage } from "./components/LeadSourcesPage";
-import {
-  parseCsvPreview,
-  validateCsvFile,
-  type CsvPreview
-} from "./lib/csvPreview";
-import {
-  ImportRequestError,
-  importCsvFile,
-  type ImportApiResponse
-} from "./lib/importApi";
+import { parseCsvPreview, validateCsvFile, type CsvPreview } from "./lib/csvPreview";
+import { ImportRequestError, importCsvFile, type ImportApiResponse } from "./lib/importApi";
 
 const sampleTemplate = [
   [
@@ -61,23 +53,15 @@ export function ImporterShell() {
   const [isParsing, setIsParsing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
-  const [importResult, setImportResult] = useState<ImportApiResponse | null>(
-    null
-  );
-  const [progressStep, setProgressStep] =
-    useState<ImportProgressStep>("uploading");
+  const [importResult, setImportResult] = useState<ImportApiResponse | null>(null);
+  const [progressStep, setProgressStep] = useState<ImportProgressStep>("uploading");
 
   useEffect(() => {
     if (!isImporting) {
       return undefined;
     }
 
-    const steps: ImportProgressStep[] = [
-      "uploading",
-      "parsing",
-      "mapping",
-      "validating"
-    ];
+    const steps: ImportProgressStep[] = ["uploading", "parsing", "mapping", "validating"];
     let index = 0;
     setProgressStep(steps[index] ?? "uploading");
 

@@ -18,8 +18,5 @@ export interface AiPromptMessages {
 
 export interface AiProvider {
   readonly name: string;
-  extractBatch(
-    request: AiBatchRequest,
-    prompt: AiPromptMessages
-  ): Promise<string>;
+  extractBatch(request: AiBatchRequest, prompt: AiPromptMessages): Promise<string>;
 }

@@ -21,9 +21,7 @@ export function CsvDropzone({
   return (
     <div
       className={`rounded-lg border border-dashed p-7 text-center transition ${
-        isDragging
-          ? "border-[#0F766E] bg-[#F0FBF8]"
-          : "border-[#D1D5DB] bg-white"
+        isDragging ? "border-[#0F766E] bg-[#F0FBF8]" : "border-[#D1D5DB] bg-white"
       }`}
       onDragLeave={(event) => {
         event.preventDefault();
@@ -51,12 +49,8 @@ export function CsvDropzone({
         )}
       </div>
 
-      <h3 className="mt-6 text-xl font-bold text-[#111827]">
-        Drop your CSV file here
-      </h3>
-      <p className="mt-1 text-sm font-medium text-[#6B7280]">
-        or click to browse files
-      </p>
+      <h3 className="mt-6 text-xl font-bold text-[#111827]">Drop your CSV file here</h3>
+      <p className="mt-1 text-sm font-medium text-[#6B7280]">or click to browse files</p>
 
       <input
         accept=".csv,text/csv"
@@ -74,7 +68,12 @@ export function CsvDropzone({
         type="file"
       />
       <label
-        className="mx-auto mt-5 inline-flex cursor-pointer items-center justify-center rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-2 text-sm font-semibold text-[#4B5563] transition hover:border-[#BFE7E0] hover:bg-[#F0FBF8] hover:text-[#0F766E]"
+        className={[
+          "mx-auto mt-5 inline-flex cursor-pointer items-center justify-center rounded-full",
+          "border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-2 text-sm font-semibold",
+          "text-[#4B5563] transition hover:border-[#BFE7E0] hover:bg-[#F0FBF8]",
+          "hover:text-[#0F766E]"
+        ].join(" ")}
         htmlFor={inputId}
       >
         <Info aria-hidden="true" className="mr-2 h-4 w-4" />
@@ -82,8 +81,7 @@ export function CsvDropzone({
       </label>
 
       <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-[#6B7280]">
-        Any valid CSV can be previewed here. AI extraction starts only after
-        you confirm the import.
+        Any valid CSV can be previewed here. AI extraction starts only after you confirm the import.
       </p>
 
       {error ? (

@@ -1,11 +1,5 @@
 import { CRM_FIELDS, type CrmStatus } from "@groweasy/shared";
-import {
-  CheckCircle2,
-  CircleAlert,
-  Clipboard,
-  Download,
-  RotateCcw
-} from "lucide-react";
+import { CheckCircle2, CircleAlert, Clipboard, Download, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { MetricCard } from "./MetricCard";
 import type { ImportApiResponse } from "../lib/importApi";
@@ -22,17 +16,21 @@ const statusClassName: Record<CrmStatus, string> = {
   SALE_DONE: "border-leaf/30 bg-mint text-leaf"
 };
 
-export function ImportResultDetails({
-  result,
-  onReset
-}: ImportResultDetailsProps) {
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
-    "idle"
-  );
-  const successRate = getSuccessRate(
-    result.summary.totalImported,
-    result.summary.totalRows
-  );
+const secondaryActionClassName = [
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-line",
+  "bg-white px-4 text-sm font-semibold text-ink transition hover:bg-soft",
+  "focus:outline-none focus:ring-2 focus:ring-sky focus:ring-offset-2"
+].join(" ");
+
+const primaryActionClassName = [
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-leaf px-4",
+  "text-sm font-semibold text-white shadow-sm transition hover:bg-leaf-dark",
+  "focus:outline-none focus:ring-2 focus:ring-leaf focus:ring-offset-2"
+].join(" ");
+
+export function ImportResultDetails({ result, onReset }: ImportResultDetailsProps) {
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const successRate = getSuccessRate(result.summary.totalImported, result.summary.totalRows);
   const formattedJson = useMemo(() => JSON.stringify(result, null, 2), [result]);
 
   async function handleCopyJson() {
@@ -64,25 +62,18 @@ export function ImportResultDetails({
         <div>
           <div className="flex items-center gap-2">
             <CheckCircle2 aria-hidden="true" className="h-5 w-5 text-leaf" />
-            <h2
-              className="text-lg font-semibold text-ink"
-              id="results-heading"
-            >
+            <h2 className="text-lg font-semibold text-ink" id="results-heading">
               Imported CRM records
             </h2>
           </div>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-            Review the final AI-extracted GrowEasy CRM payload, including every
-            imported record and every skipped row.
+            Review the final AI-extracted GrowEasy CRM payload, including every imported record and
+            every skipped row.
           </p>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
-          <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-sm font-semibold text-ink transition hover:bg-soft focus:outline-none focus:ring-2 focus:ring-sky focus:ring-offset-2"
-            onClick={handleCopyJson}
-            type="button"
-          >
+          <button className={secondaryActionClassName} onClick={handleCopyJson} type="button">
             <Clipboard aria-hidden="true" className="h-4 w-4" />
             {copyState === "copied"
               ? "Copied JSON"
@@ -90,19 +81,11 @@ export function ImportResultDetails({
                 ? "Copy failed"
                 : "Copy JSON"}
           </button>
-          <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-line bg-white px-4 text-sm font-semibold text-ink transition hover:bg-soft focus:outline-none focus:ring-2 focus:ring-sky focus:ring-offset-2"
-            onClick={handleDownloadJson}
-            type="button"
-          >
+          <button className={secondaryActionClassName} onClick={handleDownloadJson} type="button">
             <Download aria-hidden="true" className="h-4 w-4" />
             Export JSON
           </button>
-          <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-leaf px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-leaf-dark focus:outline-none focus:ring-2 focus:ring-leaf focus:ring-offset-2"
-            onClick={onReset}
-            type="button"
-          >
+          <button className={primaryActionClassName} onClick={onReset} type="button">
             <RotateCcw aria-hidden="true" className="h-4 w-4" />
             Import another CSV
           </button>
@@ -110,10 +93,7 @@ export function ImportResultDetails({
       </div>
 
       <div className="grid gap-3 border-b border-line p-5 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          label="Total rows"
-          value={result.summary.totalRows.toLocaleString()}
-        />
+        <MetricCard label="Total rows" value={result.summary.totalRows.toLocaleString()} />
         <MetricCard
           label="Total imported"
           tone="success"
@@ -132,8 +112,8 @@ export function ImportResultDetails({
           <div className="flex gap-2 text-sm font-semibold text-amber-ink">
             <CircleAlert aria-hidden="true" className="mt-0.5 h-4 w-4" />
             <p>
-              {result.summary.failedBatches.toLocaleString()} AI batches failed
-              after retry. Successfully validated records are still listed.
+              {result.summary.failedBatches.toLocaleString()} AI batches failed after retry.
+              Successfully validated records are still listed.
             </p>
           </div>
         </div>
@@ -153,8 +133,7 @@ function ImportedRecordsTable({ result }: { result: ImportApiResponse }) {
       <div className="rounded-lg border border-dashed border-line bg-soft p-5 text-center">
         <h3 className="text-sm font-semibold text-ink">No imported records</h3>
         <p className="mt-2 text-sm leading-6 text-muted">
-          The backend completed the import, but no rows met the CRM contact
-          requirements.
+          The backend completed the import, but no rows met the CRM contact requirements.
         </p>
       </div>
     );
@@ -164,15 +143,10 @@ function ImportedRecordsTable({ result }: { result: ImportApiResponse }) {
     <section aria-labelledby="imported-table-heading">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h3
-            className="text-base font-semibold text-ink"
-            id="imported-table-heading"
-          >
+          <h3 className="text-base font-semibold text-ink" id="imported-table-heading">
             Imported records
           </h3>
-          <p className="mt-1 text-sm text-muted">
-            Exact CRM fields returned by the backend.
-          </p>
+          <p className="mt-1 text-sm text-muted">Exact CRM fields returned by the backend.</p>
         </div>
         <span className="text-sm font-medium text-muted">
           {result.importedRecords.length.toLocaleString()} rows
@@ -244,10 +218,7 @@ function SkippedRecordsPanel({ result }: { result: ImportApiResponse }) {
     <section aria-labelledby="skipped-table-heading">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h3
-            className="text-base font-semibold text-ink"
-            id="skipped-table-heading"
-          >
+          <h3 className="text-base font-semibold text-ink" id="skipped-table-heading">
             Skipped records
           </h3>
           <p className="mt-1 text-sm text-muted">
@@ -302,13 +273,8 @@ function SkippedRecordsPanel({ result }: { result: ImportApiResponse }) {
                   </th>
                   <td className="border-b border-r border-line px-3 py-3 align-top">
                     <div className="flex gap-2 text-amber-ink">
-                      <CircleAlert
-                        aria-hidden="true"
-                        className="mt-0.5 h-4 w-4 shrink-0"
-                      />
-                      <span className="break-words text-sm font-medium">
-                        {record.reason}
-                      </span>
+                      <CircleAlert aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span className="break-words text-sm font-medium">{record.reason}</span>
                     </div>
                   </td>
                   <td className="border-b border-line px-3 py-3 align-top">

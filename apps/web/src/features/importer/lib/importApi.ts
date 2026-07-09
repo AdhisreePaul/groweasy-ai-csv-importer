@@ -24,15 +24,7 @@ export class ImportRequestError extends Error {
   code: string;
   status?: number;
 
-  constructor({
-    code,
-    message,
-    status
-  }: {
-    code: string;
-    message: string;
-    status?: number;
-  }) {
+  constructor({ code, message, status }: { code: string; message: string; status?: number }) {
     super(message);
     this.name = "ImportRequestError";
     this.code = code;
@@ -67,8 +59,7 @@ export async function importCsvFile(file: File): Promise<ImportApiResponse> {
   } catch {
     throw new ImportRequestError({
       code: "NETWORK_ERROR",
-      message:
-        "Could not reach the backend. Check that the API server is running and try again."
+      message: "Could not reach the backend. Check that the API server is running and try again."
     });
   }
 
@@ -77,10 +68,7 @@ export async function importCsvFile(file: File): Promise<ImportApiResponse> {
   if (!response.ok) {
     throw new ImportRequestError({
       code: getErrorCode(responseBody),
-      message: getErrorMessage(
-        responseBody,
-        "Import failed. Check the CSV and retry."
-      ),
+      message: getErrorMessage(responseBody, "Import failed. Check the CSV and retry."),
       status: response.status
     });
   }
@@ -88,8 +76,7 @@ export async function importCsvFile(file: File): Promise<ImportApiResponse> {
   if (!isImportApiResponse(responseBody)) {
     throw new ImportRequestError({
       code: "INVALID_RESPONSE",
-      message:
-        "The backend returned an unexpected response. Please retry the import."
+      message: "The backend returned an unexpected response. Please retry the import."
     });
   }
 
@@ -109,9 +96,7 @@ function getErrorCode(value: unknown): string {
     return "UNKNOWN_ERROR";
   }
 
-  return typeof value.error.code === "string"
-    ? value.error.code
-    : "UNKNOWN_ERROR";
+  return typeof value.error.code === "string" ? value.error.code : "UNKNOWN_ERROR";
 }
 
 function getErrorMessage(value: unknown, fallback: string): string {
@@ -119,9 +104,7 @@ function getErrorMessage(value: unknown, fallback: string): string {
     return fallback;
   }
 
-  return typeof value.error.message === "string"
-    ? value.error.message
-    : fallback;
+  return typeof value.error.message === "string" ? value.error.message : fallback;
 }
 
 export function isImportApiResponse(value: unknown): value is ImportApiResponse {
@@ -179,11 +162,7 @@ function isImportedRecord(value: unknown): value is ImportedRecord {
 }
 
 function isSkippedRecord(value: unknown): value is SkippedRecord {
-  return (
-    isRecord(value) &&
-    isPositiveNumber(value.source_row) &&
-    typeof value.reason === "string"
-  );
+  return isRecord(value) && isPositiveNumber(value.source_row) && typeof value.reason === "string";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -198,9 +177,6 @@ function isNonnegativeNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= 0;
 }
 
-function isAllowedValue<T extends string>(
-  value: unknown,
-  allowedValues: readonly T[]
-): value is T {
+function isAllowedValue<T extends string>(value: unknown, allowedValues: readonly T[]): value is T {
   return typeof value === "string" && allowedValues.includes(value as T);
 }

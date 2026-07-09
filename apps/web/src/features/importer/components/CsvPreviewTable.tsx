@@ -13,12 +13,8 @@ export function CsvPreviewTable({ preview }: { preview: CsvPreview }) {
   );
 
   const visibleRows = useMemo(() => {
-    const startIndex = Math.max(
-      0,
-      Math.floor(scrollTop / ROW_HEIGHT_PX) - OVERSCAN_ROWS
-    );
-    const visibleCount =
-      Math.ceil(viewportHeight / ROW_HEIGHT_PX) + OVERSCAN_ROWS * 2;
+    const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT_PX) - OVERSCAN_ROWS);
+    const visibleCount = Math.ceil(viewportHeight / ROW_HEIGHT_PX) + OVERSCAN_ROWS * 2;
     const endIndex = Math.min(preview.rows.length, startIndex + visibleCount);
 
     return {
@@ -82,10 +78,7 @@ export function CsvPreviewTable({ preview }: { preview: CsvPreview }) {
                   top: `${(visibleRows.startIndex + index) * ROW_HEIGHT_PX}px`
                 }}
               >
-                <div
-                  className="flex items-center px-3 font-semibold text-[#6B7280]"
-                  role="cell"
-                >
+                <div className="flex items-center px-3 font-semibold text-[#6B7280]" role="cell">
                   {row.rowNumber}
                 </div>
                 {row.values.map((value, cellIndex) => (
@@ -105,8 +98,7 @@ export function CsvPreviewTable({ preview }: { preview: CsvPreview }) {
       </div>
       {preview.truncated ? (
         <p className="border-t border-[#E5E7EB] px-4 py-3 text-xs font-medium text-[#6B7280]">
-          Showing an optimized preview. The full CSV file is preserved for
-          import.
+          Showing an optimized preview. The full CSV file is preserved for import.
         </p>
       ) : null}
     </div>

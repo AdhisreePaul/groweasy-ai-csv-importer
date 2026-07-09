@@ -13,9 +13,7 @@ export function addSkippedRecord(
   skippedRecords.push(record);
 }
 
-export function dedupeSkippedRecords<T extends { source_row: number }>(
-  records: T[]
-): T[] {
+export function dedupeSkippedRecords<T extends { source_row: number }>(records: T[]): T[] {
   const seen = new Set<number>();
   const deduped: T[] = [];
 

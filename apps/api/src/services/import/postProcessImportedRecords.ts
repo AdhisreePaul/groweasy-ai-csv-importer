@@ -41,11 +41,7 @@ export function postProcessImportedRecords(
 
   for (const record of records) {
     const rawRecord = rawBySourceRow.get(record.source_row);
-    const repairedRecord = repairImportedRecord(
-      record,
-      rawRecord,
-      defaultDataSource
-    );
+    const repairedRecord = repairImportedRecord(record, rawRecord, defaultDataSource);
     const parsed = importedRecordSchema.safeParse(repairedRecord);
 
     if (!parsed.success) {
@@ -115,26 +111,19 @@ function repairImportedRecord(
   rawRecord: Record<string, unknown> | undefined,
   defaultDataSource?: DataSource
 ): ImportedRecord {
-  const contactDetails = rawRecord
-    ? extractContactDetailsFromRecord(rawRecord)
-    : null;
+  const contactDetails = rawRecord ? extractContactDetailsFromRecord(rawRecord) : null;
   const aiPhone = normalizePhoneWithCountryCode(
     record.mobile_without_country_code,
     record.country_code
   );
   const primaryPhone =
-    contactDetails?.primaryPhone ??
-    (aiPhone.mobile_without_country_code ? aiPhone : null);
+    contactDetails?.primaryPhone ?? (aiPhone.mobile_without_country_code ? aiPhone : null);
   let crmNote = cleanCellValue(record.crm_note);
-  const joinedRawText = rawRecord
-    ? Object.values(rawRecord).map(cleanCellValue).join(" ")
-    : "";
+  const joinedRawText = rawRecord ? Object.values(rawRecord).map(cleanCellValue).join(" ") : "";
   const rawCreatedAt = rawRecord ? findDateValue(rawRecord) : "";
   const rawLeadOwner = rawRecord ? findRawValue(rawRecord, ownerAliases) : "";
   const rawNote = rawRecord ? findRawValue(rawRecord, noteAliases) : "";
-  const inferredDataSource = rawRecord
-    ? inferDataSource(joinedRawText, defaultDataSource)
-    : "";
+  const inferredDataSource = rawRecord ? inferDataSource(joinedRawText, defaultDataSource) : "";
 
   if (contactDetails?.additionalEmails.length) {
     crmNote = appendToNote(
@@ -165,8 +154,7 @@ function repairImportedRecord(
       primaryPhone?.mobile_without_country_code ??
       cleanCellValue(record.mobile_without_country_code),
     country:
-      cleanCellValue(record.country) ||
-      (primaryPhone?.country_code === "+91" ? "India" : ""),
+      cleanCellValue(record.country) || (primaryPhone?.country_code === "+91" ? "India" : ""),
     lead_owner: rawRecord ? rawLeadOwner : stripInventedFallback(record.lead_owner),
     crm_note: crmNote,
     data_source: inferredDataSource

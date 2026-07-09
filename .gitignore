@@ -4,13 +4,17 @@ node_modules/
 .next/
 out/
 dist/
+.turbo/
 coverage/
 dev-logs/
+.codex/
+.agents/
 
 .env
 .env.local
 .env.*.local
 
+*.tsbuildinfo
 *.log
 pnpm-debug.log*
 npm-debug.log*
